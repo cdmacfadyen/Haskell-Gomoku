@@ -34,7 +34,8 @@ initBoard = Board 6 3 []
 -- will be useful (information for the AI, for example, such as where the
 -- most recent moves were).
 data World = World { board :: Board,
-                     turn :: Col }
+                     turn :: Col, 
+		     width :: Int }
 
 initWorld = World initBoard Black
 
