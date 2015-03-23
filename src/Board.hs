@@ -1,53 +1,47 @@
 module Board where
 
-data Col = Black | White
+-- | Player piece colour.
+data Colour = Black | White
   deriving Show
 
-other :: Col -> Col
-other Black = White
-other White = Black
+-- | Switch current player.
+switch :: Colour -> Colour
+switch Black = White
+switch White = Black
 
+-- | Indicate a piece position of board.
 type Position = (Int, Int)
 
--- A Board is a record containing the board size (a board is a square grid,
--- n * n), the number of pieces in a row required to win, and a list 
--- of pairs of position and the colour at that position.  So a 10x10 board 
--- for a game of 5 in a row with a black piece at 5,5 and a white piece at 8,7
--- would be represented as:
---
--- Board 10 5 [((5, 5), Black), ((8,7), White)]
+-- | Indicate a piece position of board.
+type Piece = (Position,Colour)
 
-data Board = Board { size :: Int,
-                     target :: Int,
-                     pieces :: [(Position, Col)]
+data Board = Board { size :: Int, -- ^ Board Size.
+                     target :: Int, -- ^ Target 'in-a-row'
+                     pieces :: [Piece] -- ^ Position List.
                    }
-  deriving Show
+  			 deriving Show
 
--- Default board is 6x6, target is 3 in a row, no initial pieces
-initBoard = Board 6 3 []
+data World = World { board :: Board, -- ^ Board Representation
+                     turn :: Colour, -- ^ Current Player
+		     		 width :: Int } -- ^ Width 
 
--- Overall state is the board and whose turn it is, plus any further
--- information about the world (this may later include, for example, player
--- names, timers, information about rule variants, etc)
---
--- Feel free to extend this, and 'Board' above with anything you think
--- will be useful (information for the AI, for example, such as where the
--- most recent moves were).
-data World = World { board :: Board,
-                     turn :: Col, 
-		     width :: Int }
 
+-- | Default board: 6x6, target is 3 in a row, no initial pieces
+-- initBoard '=' Board 6 3 [] 
+initBoard = Board 6 3 [((1, 1), Black), ((-2, 3), White)] -- For testing purposes!
+
+-- | Default world: initial board, black is current player.
 initWorld = World initBoard Black
 
 -- Play a move on the board; return 'Nothing' if the move is invalid
 -- (e.g. outside the range of the board, or there is a piece already there)
-makeMove :: Board -> Col -> Position -> Maybe Board
+makeMove :: Board -> Colour -> Position -> Maybe Board
 makeMove = undefined
 
 -- Check whether the board is in a winning state for either player.
 -- Returns 'Nothing' if neither player has won yet
 -- Returns 'Just c' if the player 'c' has won
-checkWon :: Board -> Maybe Col
+checkWon :: Board -> Maybe Colour
 checkWon = undefined
 
 {- Hint: One way to implement 'checkWon' would be to write functions 
@@ -64,7 +58,7 @@ For every position ((x, y), col) in the 'pieces' list:
 
 -- An evaluation function for a minimax search. Given a board and a colour
 -- return an integer indicating how good the board is for that colour.
-evaluate :: Board -> Col -> Int
+evaluate :: Board -> Colour -> Int
 evaluate = undefined
 
 

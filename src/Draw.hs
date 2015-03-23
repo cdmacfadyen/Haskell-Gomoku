@@ -1,24 +1,48 @@
 module Draw(drawWorld) where
 
 import Graphics.Gloss
+
 import Board
 
--- Given a world state, return a Picture which will render the world state.
--- Currently just draws a single blue circle as a placeholder.
---
--- This will need to extract the Board from the world state and draw it
--- as a grid plus pieces.
+-- | Overall Draw Function.
 drawWorld :: World -> Picture
-drawWorld w = Pictures [Color red $ drawGrid (fromIntegral(size $ board w)) (fromIntegral(width w))]
+drawWorld world = Pictures[drawBoard world, drawPieces world]
 
--- Number of cells in grid (g) and the width of cells (w)
--- List comprehension to draw 'n' horizontal and vertical lines
-drawGrid :: Float -> Float -> Picture
-drawGrid g w = Pictures [Pictures [horizontalLine x (w/g) (w/2) | x <- [-g/2..g/2]], 
-			 Pictures [verticalLine x (w/g) (w/2) | x <- [-g/2..g/2]]]
+-- | Draws the board.
+drawBoard :: World -> Picture
+drawBoard world = Pictures[Color red $ genGrid (fromIntegral(size $ board world)) 
+												(fromIntegral(width world))]
 
-horizontalLine :: Float -> Float -> Float -> Picture
-horizontalLine x sqrWidth scrWidth = Line [(-scrWidth, x*sqrWidth), (scrWidth, x*sqrWidth)] 
+-- | Number of cells in grid (cells) and the width of cells (width).
+-- List comprehension to draw 'n' horizontal and vertical lines.
+genGrid :: Float -> Float -> Picture
+genGrid cells width = Pictures[Pictures [horizontal x (width/cells) (width/2) | x <- [-cells/2..cells/2]], 
+			 Pictures [vertical x (width/cells) (width/2) | x <- [-cells/2..cells/2]]]
 
-verticalLine :: Float -> Float -> Float -> Picture
-verticalLine x sqrWidth scrWidth = Line [(x*sqrWidth, -scrWidth), (x*sqrWidth, scrWidth)] 
+horizontal :: Float -> Float -> Float -> Picture
+horizontal x sqrWidth scrWidth = Line[(-scrWidth, x*sqrWidth), (scrWidth, x*sqrWidth)] 
+
+vertical :: Float -> Float -> Float -> Picture
+vertical x sqrWidth scrWidth = Line[(x*sqrWidth, -scrWidth), (x*sqrWidth, scrWidth)] 
+
+drawPieces :: World -> Picture
+drawPieces w = Pictures [drawPiece piece (squareSize w)| piece <- pieces $ board w]
+
+drawPiece :: (Position, Colour) -> Float -> Picture
+drawPiece ((x, y), colour) size = Color (colourPiece colour) $ Translate (size * fromIntegral(x)) (size * fromIntegral(y)) (Circle (size / 4))
+
+colourPiece :: Colour -> Color
+colourPiece Black = red
+colourPiece White = blue
+
+squareSize :: World -> Float
+squareSize w = fromIntegral(width w) / fromIntegral(size $ board w)
+
+
+
+
+
+
+
+
+	

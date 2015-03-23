@@ -4,7 +4,6 @@ import Graphics.Gloss.Interface.Pure.Game
 import Graphics.Gloss
 import Board
 import AI
-
 import Debug.Trace
 
 -- Update the world state given an input event. Some sample input events
