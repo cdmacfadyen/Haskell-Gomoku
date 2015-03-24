@@ -60,6 +60,3 @@ For every position ((x, y), col) in the 'pieces' list:
 -- return an integer indicating how good the board is for that colour.
 evaluate :: Board -> Colour -> Int
 evaluate = undefined
-
-
-

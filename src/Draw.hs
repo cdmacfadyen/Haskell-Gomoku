@@ -10,38 +10,35 @@ drawWorld world = Pictures[drawBoard world, drawPieces world]
 
 -- | Draws the board.
 drawBoard :: World -> Picture
-drawBoard world = Pictures[Color red $ genGrid (fromIntegral(size $ board world))(fromIntegral(width world))]
+drawBoard world = Pictures[Color red . genGrid world . size $ board world]
 
--- | Number of cells in grid (cells) and the width of cells (width).
--- List comprehension to draw 'n' horizontal and vertical lines.
-genGrid :: Float -> Float -> Picture
-genGrid cells width = Pictures[Pictures [horizontal x (width/cells) (width/2) | x <- [-cells/2..cells/2]], 
-			 Pictures [vertical x (width/cells) (width/2) | x <- [-cells/2..cells/2]]]
+-- Generates the grid of size count for the given world, by calling horizontal and vertical, and then translating the resultant grid by negative half of the screen width on each axis.
+genGrid :: World -> Int -> Picture
+genGrid world count = Translate (-screensize / 2) (-screensize / 2) $ Pictures $ horizontal gridsize count ++ vertical gridsize count
+    where gridsize = squareSize world
+          screensize = fromIntegral $ width world
 
-horizontal :: Float -> Float -> Float -> Picture
-horizontal x sqrWidth scrWidth = Line[(-scrWidth, x*sqrWidth), (scrWidth, x*sqrWidth)] 
+-- Generates count horizontal lines gridsize apart, starting from the origin.
+horizontal :: Float -> Int -> [Picture]
+horizontal gridsize count = [Line [(0 :: Float, gridsize * n), (gridsize * fromIntegral count, gridsize * n)] | n <- map fromIntegral [0..count] :: [Float]]
 
-vertical :: Float -> Float -> Float -> Picture
-vertical x sqrWidth scrWidth = Line[(x*sqrWidth, -scrWidth), (x*sqrWidth, scrWidth)] 
+-- Generates count vertical lines gridsize apart, starting from the origin.
+vertical :: Float -> Int -> [Picture]
+vertical gridsize count = [Line [(gridsize * n, 0 :: Float), (gridsize * n, gridsize * fromIntegral count)] | n <- map fromIntegral [0..count] :: [Float]]
 
 drawPieces :: World -> Picture
 drawPieces w = Pictures [drawPiece piece (squareSize w)| piece <- pieces $ board w]
 
 drawPiece :: (Position, Colour) -> Float -> Picture
-drawPiece ((x, y), colour) size = Color (colourPiece colour) $ Translate (size * fromIntegral(x)) (size * fromIntegral(y)) (ThickCircle (size / 8) (size / 4))
+drawPiece ((x, y), colour) size = Color (colourPiece colour) $ Translate (size * fromIntegral x) (size * fromIntegral y) $ ThickCircle (size / 8) (size / 4)
 
 colourPiece :: Colour -> Color
 colourPiece Black = black
 colourPiece White = white
 
 squareSize :: World -> Float
-squareSize w = fromIntegral(width w) / fromIntegral(size $ board w)
+squareSize w = fromIntegral (width w) / (fromIntegral . size $ board w)
 
-
-
-
-
-
-
-
-	
+screenSpaceToBoardSpace :: World -> (Float, Float) -> Position
+screenSpaceToBoardSpace world (screenx, screeny) = (round (screenx / gridsize), round (screeny / gridsize))
+    where gridsize = squareSize world
