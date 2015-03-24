@@ -10,7 +10,7 @@ import AI
 main :: IO ()		-- ^ IO State.
 -- | Starts up a graphics window and sets up handlers for 
 -- dealing with inputs and updating the world state.
-main = play (InWindow "Gomoku" (640, 640) (10, 10)) white 10
+main = play (InWindow "Gomoku" (640, 640) (10, 10)) aquamarine 10
             (initWorld 600)
             drawWorld -- Convert the world state to gloss state.
             -- | Called if there is an input event. If it is the

@@ -10,8 +10,7 @@ drawWorld world = Pictures[drawBoard world, drawPieces world]
 
 -- | Draws the board.
 drawBoard :: World -> Picture
-drawBoard world = Pictures[Color red $ genGrid (fromIntegral(size $ board world)) 
-												(fromIntegral(width world))]
+drawBoard world = Pictures[Color red $ genGrid (fromIntegral(size $ board world))(fromIntegral(width world))]
 
 -- | Number of cells in grid (cells) and the width of cells (width).
 -- List comprehension to draw 'n' horizontal and vertical lines.
@@ -29,11 +28,11 @@ drawPieces :: World -> Picture
 drawPieces w = Pictures [drawPiece piece (squareSize w)| piece <- pieces $ board w]
 
 drawPiece :: (Position, Colour) -> Float -> Picture
-drawPiece ((x, y), colour) size = Color (colourPiece colour) $ Translate (size * fromIntegral(x)) (size * fromIntegral(y)) (Circle (size / 4))
+drawPiece ((x, y), colour) size = Color (colourPiece colour) $ Translate (size * fromIntegral(x)) (size * fromIntegral(y)) (ThickCircle (size / 8) (size / 4))
 
 colourPiece :: Colour -> Color
-colourPiece Black = red
-colourPiece White = blue
+colourPiece Black = black
+colourPiece White = white
 
 squareSize :: World -> Float
 squareSize w = fromIntegral(width w) / fromIntegral(size $ board w)
