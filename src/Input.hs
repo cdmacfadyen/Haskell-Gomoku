@@ -18,9 +18,10 @@ handleInput (EventMotion (x, y)) b
 
 -- Initiates check to see if placement is valid
 -- Passes in point that's closest to a valid placement coord
-handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) b 
-    = maybeBoardToWorld b ( makeMove (board b) (turn b) (screenSpaceToBoardSpace b (x,y)) )
-
+handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) b = case maybepos of
+    Just pos  -> maybeBoardToWorld b $ makeMove (board b) (turn b) pos
+    Nothing   -> b
+    where maybepos = screenSpaceToBoardSpace b (x, y)
 
 handleInput (EventKey (Char k) Down _ _) b
     = trace ("Key " ++ show k ++ " down") b
@@ -41,4 +42,3 @@ maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b)}
 
  At first, it is reasonable to assume that both players are human players.
 -}
-
