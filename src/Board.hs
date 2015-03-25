@@ -36,7 +36,15 @@ initWorld = World initBoard Black
 -- Play a move on the board; return 'Nothing' if the move is invalid
 -- (e.g. outside the range of the board, or there is a piece already there)
 makeMove :: Board -> Colour -> Position -> Maybe Board
-makeMove = undefined
+makeMove b col p = if contains p (pieces b) == True then Nothing else Just b {pieces = ((p,col) : (pieces b))}
+
+-- Checks if a piece on the board is in the position you're trying to place a piece
+contains :: Position -> [Piece] -> Bool
+contains coord [] = False
+contains coord ((position, col):xs) 
+	| coord == position = True
+	| otherwise         = contains coord xs
+
 
 -- Check whether the board is in a winning state for either player.
 -- Returns 'Nothing' if neither player has won yet
@@ -60,3 +68,11 @@ For every position ((x, y), col) in the 'pieces' list:
 -- return an integer indicating how good the board is for that colour.
 evaluate :: Board -> Colour -> Int
 evaluate = undefined
+
+
+squareSize :: World -> Float
+squareSize w = fromIntegral (width w) / (fromIntegral . size $ board w)
+
+screenSpaceToBoardSpace :: World -> (Float, Float) -> Position
+screenSpaceToBoardSpace world (screenx, screeny) = (round (screenx / gridsize), round (screeny / gridsize))
+    where gridsize = squareSize world

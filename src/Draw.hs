@@ -35,10 +35,3 @@ drawPiece ((x, y), colour) size = Color (colourPiece colour) $ Translate (size *
 colourPiece :: Colour -> Color
 colourPiece Black = black
 colourPiece White = white
-
-squareSize :: World -> Float
-squareSize w = fromIntegral (width w) / (fromIntegral . size $ board w)
-
-screenSpaceToBoardSpace :: World -> (Float, Float) -> Position
-screenSpaceToBoardSpace world (screenx, screeny) = (round (screenx / gridsize), round (screeny / gridsize))
-    where gridsize = squareSize world

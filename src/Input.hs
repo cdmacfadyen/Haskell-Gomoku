@@ -15,13 +15,25 @@ import Debug.Trace
 handleInput :: Event -> World -> World
 handleInput (EventMotion (x, y)) b 
     = trace ("Mouse moved to: " ++ show (x,y)) b
+
+-- Initiates check to see if placement is valid
+-- Passes in point that's closest to a valid placement coord
 handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) b 
-    = trace ("Left button pressed at: " ++ show (x,y)) b
+    = maybeBoardToWorld b ( makeMove (board b) (turn b) (screenSpaceToBoardSpace b (x,y)) )
+
+
 handleInput (EventKey (Char k) Down _ _) b
     = trace ("Key " ++ show k ++ " down") b
 handleInput (EventKey (Char k) Up _ _) b
     = trace ("Key " ++ show k ++ " up") b
 handleInput e b = b
+
+-- Gets a World from original World and Maybe Board
+-- Have to check if Maybe Board is Nothing or Board before returning World
+maybeBoardToWorld :: World -> Maybe Board -> World
+maybeBoardToWorld b Nothing = b
+maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b)}
+
 
 {- Hint: when the 'World' is in a state where it is the human player's
  turn to move, a mouse press event should calculate which board position
