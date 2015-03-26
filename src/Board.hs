@@ -1,5 +1,7 @@
 module Board where
 
+import Data.List
+
 -- | Player piece colour.
 data Colour = Black | White
   deriving Show
@@ -19,19 +21,19 @@ data Board = Board { size :: Int, -- ^ Board Size.
                      target :: Int, -- ^ Target 'in-a-row'
                      pieces :: [Piece] -- ^ Position List.
                    }
-  			 deriving Show
+         deriving Show
 
 data World = World { board :: Board, -- ^ Board Representation
+                     mousePos :: Maybe Position,
                      turn :: Colour, -- ^ Current Player
-		     		 width :: Int } -- ^ Width 
-
+             width :: Int } -- ^ Width
 
 -- | Default board: 6x6, target is 3 in a row, no initial pieces
 --initBoard = Board 6 3 [((1, 1), Black), ((-2, 3), White)] -- For testing purposes!
 initBoard = Board 6 3 []
 
 -- | Default world: initial board, black is current player.
-initWorld = World initBoard Black
+initWorld = World initBoard Nothing Black
 
 -- Play a move on the board; return 'Nothing' if the move is invalid
 -- (e.g. outside the range of the board, or there is a piece already there)
@@ -42,9 +44,8 @@ makeMove b col p = if contains p $ pieces b then Nothing else Just b {pieces = (
 contains :: Position -> [Piece] -> Bool
 contains coord [] = False
 contains coord ((position, col):xs) 
-	| coord == position = True
-	| otherwise         = contains coord xs
-
+  | coord == position = True
+  | otherwise         = contains coord xs
 
 -- Check whether the board is in a winning state for either player.
 -- Returns 'Nothing' if neither player has won yet
@@ -52,17 +53,18 @@ contains coord ((position, col):xs)
 checkWon :: Board -> Maybe Colour
 checkWon = undefined
 
-{- Hint: One way to implement 'checkWon' would be to write functions 
-which specifically check for lines in all 8 possible directions
-(NW, N, NE, E, W, SE, SW)
 
-In these functions:
-To check for a line of n in a row in a direction D:
-For every position ((x, y), col) in the 'pieces' list:
-- if n == 1, the colour 'col' has won
-- if n > 1, move one step in direction D, and check for a line of
-  n-1 in a row.
--}
+-- Hint: One way to implement 'checkWon' would be to write functions 
+--which specifically check for lines in all 8 possible directions
+--(NW, N, NE, E, W, SE, SW)
+
+--In these functions:
+--To check for a line of n in a row in a direction D:
+--For every position ((x, y), col) in the 'pieces' list:
+--- if n == 1, the colour 'col' has won
+--- if n > 1, move one step in direction D, and check for a line of
+--  n-1 in a row.
+
 
 -- An evaluation function for a minimax search. Given a board and a colour
 -- return an integer indicating how good the board is for that colour.
@@ -81,3 +83,5 @@ screenSpaceToBoardSpace world (screenx, screeny)
           boardx        = round $ screenx / gridsize
           boardy        = round $ screeny / gridsize
           halfgridwidth = (size (board world)) `quot` 2
+
+

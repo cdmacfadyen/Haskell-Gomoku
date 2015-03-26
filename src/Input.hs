@@ -13,8 +13,10 @@ import Debug.Trace
 -- 'trace' returns its second argument while printing its first argument
 -- to stderr, which can be a very useful way of debugging!
 handleInput :: Event -> World -> World
-handleInput (EventMotion (x, y)) b 
-    = trace ("Mouse moved to: " ++ show (x,y)) b
+handleInput (EventMotion (x, y)) b = case maybepos of
+    Just pos  -> trace ("Mouse moved to: " ++ show (x,y)) b {mousePos = maybepos}
+    Nothing   -> b
+    where maybepos = screenSpaceToBoardSpace b (x, y)
 
 -- Initiates check to see if placement is valid
 -- Passes in point that's closest to a valid placement coord
