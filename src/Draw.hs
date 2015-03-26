@@ -38,9 +38,7 @@ colourPiece White = white
 
 highlight :: World-> Maybe Position -> Picture
 highlight w Nothing = Blank
-highlight w (Just p) = if contains p $ pieces (board w) then Blank else drawHighlight p (squareSize w)
+highlight w (Just p) = if contains p $ pieces $ board w then Blank else drawHighlight p $ squareSize w
 
 drawHighlight :: Position -> Float -> Picture
 drawHighlight (x,y) size = Color (makeColor 0.2 0.3 0.4 0.5) $ Translate (size * fromIntegral x) (size * fromIntegral y) $ thickCircle (150 * 0.275) 7
-
-

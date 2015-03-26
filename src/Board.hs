@@ -15,7 +15,7 @@ switch White = Black
 type Position = (Int, Int)
 
 -- | Indicate a piece position of board.
-type Piece = (Position,Colour)
+type Piece = (Position, Colour)
 
 data Board = Board { size :: Int, -- ^ Board Size.
                      target :: Int, -- ^ Target 'in-a-row'
@@ -82,6 +82,4 @@ screenSpaceToBoardSpace world (screenx, screeny)
     where gridsize      = squareSize world
           boardx        = round $ screenx / gridsize
           boardy        = round $ screeny / gridsize
-          halfgridwidth = (size (board world)) `quot` 2
-
-
+          halfgridwidth = (size $ board world) `quot` 2
