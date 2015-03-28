@@ -8,12 +8,8 @@ import Debug.Trace
 
 -- Update the world state given an input event. Some sample input events
 -- are given; when they happen, there is a trace printed on the console
---
--- trace :: String -> a -> a
--- 'trace' returns its second argument while printing its first argument
--- to stderr, which can be a very useful way of debugging!
 handleInput :: Event -> World -> World
-handleInput (EventMotion (x, y)) b = trace ("Mouse moved to: " ++ show (x,y)) b {mousePos = pos}
+handleInput (EventMotion (x, y)) b = b {mousePos = pos}
     where pos = screenSpaceToBoardSpace b (x, y)
 
 -- Initiates check to see if placement is valid
@@ -22,11 +18,8 @@ handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) b = case maybepos of
     Just pos  -> maybeBoardToWorld b $ makeMove (board b) (turn b) pos
     Nothing   -> b
     where maybepos = mousePos b
-
-handleInput (EventKey (Char k) Down _ _) b
-    = trace ("Key " ++ show k ++ " down") b
-handleInput (EventKey (Char k) Up _ _) b
-    = trace ("Key " ++ show k ++ " up") b
+handleInput (EventKey (Char k) Down _ _) b = trace ("Is there a win? " ++ show (checkWon b)) b
+handleInput (EventKey (Char k) Up _ _) b = b
 handleInput e b = b
 
 -- Gets a World from original World and Maybe Board

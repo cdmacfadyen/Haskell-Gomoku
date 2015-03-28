@@ -1,10 +1,8 @@
 module Board where
 
-import Data.List
-
 -- | Player piece colour.
 data Colour = Black | White
-  deriving Show
+  deriving (Show, Eq)
 
 -- | Switch current player.
 switch :: Colour -> Colour
@@ -19,18 +17,17 @@ type Piece = (Position, Colour)
 
 data Board = Board { size :: Int, -- ^ Board Size.
                      target :: Int, -- ^ Target 'in-a-row'
-                     pieces :: [Piece] -- ^ Position List.
-                   }
+                     pieces :: [Piece], -- ^ Position List.
+                   	 won :: Bool } -- ^ Win Status.
          deriving Show
 
 data World = World { board :: Board, -- ^ Board Representation
                      mousePos :: Maybe Position,
                      turn :: Colour, -- ^ Current Player
-             width :: Int } -- ^ Width
+             		 width :: Int } -- ^ Width
 
 -- | Default board: 6x6, target is 3 in a row, no initial pieces
---initBoard = Board 6 3 [((1, 1), Black), ((-2, 3), White)] -- For testing purposes!
-initBoard = Board 6 3 []
+initBoard = Board 6 3 [] False
 
 -- | Default world: initial board, black is current player.
 initWorld = World initBoard Nothing Black
@@ -50,21 +47,47 @@ contains coord ((position, col):xs)
 -- Check whether the board is in a winning state for either player.
 -- Returns 'Nothing' if neither player has won yet
 -- Returns 'Just c' if the player 'c' has won
-checkWon :: Board -> Maybe Colour
-checkWon = undefined
+checkWon :: World -> Maybe Colour
+checkWon world = if (win (genWinList (size (board world)) (target (board world))) (board world) (switch (turn world))) 
+					then Just (switch (turn world)) 
+					else Nothing
 
+-- Generates a list of 'winning patterns'.
+genWinList :: Int -> Int -> [[Position]]
+genWinList size target = (genVertical size) ++ (genHorizontal size) ++ (genDiagonal size target)
 
--- Hint: One way to implement 'checkWon' would be to write functions 
---which specifically check for lines in all 8 possible directions
---(NW, N, NE, E, W, SE, SW)
+-- Generates a list of vertical win patterns.
+genVertical :: Int -> [[Position]]
+genVertical size = [[(x,y),(x,y+1),(x,y+2)] | x <- [-size..(size)], y <- [-size..size]]
 
---In these functions:
---To check for a line of n in a row in a direction D:
---For every position ((x, y), col) in the 'pieces' list:
---- if n == 1, the colour 'col' has won
---- if n > 1, move one step in direction D, and check for a line of
---  n-1 in a row.
+-- Generates a list of horizontal win patterns.
+genHorizontal :: Int -> [[Position]]
+genHorizontal size = [[(x,y),(x+1,y),(x+2,y)] | x <- [-size..size], y <- [-size..size]]
 
+-- Generates a list of diagonal win patterns.
+genDiagonal :: Int -> Int -> [[Position]]
+genDiagonal size target = [[(x,y),(x+1,y+1),(x+2,y+2)] 
+						  | x <- [-size..(size - (target - 1))], y <- [-size..(size - (target - 1))]]
+                       ++ [[(x,y),(x+1,y-1),(x+2,y-2)] 
+                       	  | x <- [-size..(size - (target - 1))], y <- [-size..(size - (target - 1))]]
+
+-- Calls the isWin helper function.
+win :: [[Position]] -> Board -> Colour -> Bool
+win winList board colour = isWin (colourFilter board colour) winList
+
+-- Recursively iterate through lists, checking for a pattern match.
+isWin :: [Position] -> [[Position]] -> Bool
+isWin positions (pattern:patterns) = (isFound pattern positions) || (isWin positions patterns)
+isWin [] _ = False
+isWin _ [] = False
+
+isFound :: Eq a => [a] -> [a] -> Bool
+isFound (x:xs) ys = (x `elem` ys) && (isFound xs ys)
+isFound [] _ = True
+
+-- Filters out the positions of the given colour.
+colourFilter :: Board -> Colour -> [Position]
+colourFilter board colour = map fst $ filter (\(_, col) -> col == colour) (pieces board)
 
 -- An evaluation function for a minimax search. Given a board and a colour
 -- return an integer indicating how good the board is for that colour.
