@@ -27,10 +27,10 @@ vertical :: Float -> Int -> [Picture]
 vertical gridsize count = [Line [(gridsize * n, 0 :: Float), (gridsize * n, gridsize * fromIntegral count)] | n <- map fromIntegral [0..count] :: [Float]]
 
 drawPieces :: World -> Picture
-drawPieces w = Pictures [drawPiece piece (squareSize w)| piece <- pieces $ board w]
+drawPieces w = Pictures [drawPiece w piece | piece <- pieces $ board w]
 
-drawPiece :: (Position, Colour) -> Float -> Picture
-drawPiece ((x, y), colour) size = Color (colourPiece colour) $ Translate (size * fromIntegral x) (size * fromIntegral y) $ ThickCircle (size / 8) (size / 4)
+drawPiece :: World -> (Position, Colour) -> Picture
+drawPiece world (position, colour) = Color (colourPiece colour) $ uncurry Translate (boardSpaceToScreenSpace world position) $ ThickCircle (squareSize world / 8) (squareSize world / 4)
 
 colourPiece :: Colour -> Color
 colourPiece Black = black
@@ -38,7 +38,7 @@ colourPiece White = white
 
 highlight :: World-> Maybe Position -> Picture
 highlight w Nothing = Blank
-highlight w (Just p) = if contains p $ pieces $ board w then Blank else drawHighlight p $ squareSize w
+highlight w (Just p) = if contains p $ pieces $ board w then Blank else drawHighlight w p
 
-drawHighlight :: Position -> Float -> Picture
-drawHighlight (x,y) size = Color (makeColor 0.2 0.3 0.4 0.5) $ Translate (size * fromIntegral x) (size * fromIntegral y) $ thickCircle (150 * 0.275) 7
+drawHighlight :: World -> Position -> Picture
+drawHighlight world position  = Color (makeColor 0.2 0.3 0.4 0.5) $ uncurry Translate (boardSpaceToScreenSpace world position) $ thickCircle (150 * 0.275) 7

@@ -100,9 +100,28 @@ squareSize w = fromIntegral (width w) / (fromIntegral . size $ board w)
 -- Given a world and a screen-space co-ordinate, return the closest board position to that co-ordinate if it is in bounds, or Nothing if it is not.
 screenSpaceToBoardSpace :: World -> (Float, Float) -> Maybe Position
 screenSpaceToBoardSpace world (screenx, screeny) 
-    | abs boardx <= halfgridwidth && abs boardy <= halfgridwidth = Just (boardx, boardy)
+    | boardx >= minbound && boardx <= maxbound && boardy >= minbound && boardy <= maxbound = Just (boardx, boardy)
     | otherwise = Nothing
-    where gridsize      = squareSize world
-          boardx        = round $ screenx / gridsize
-          boardy        = round $ screeny / gridsize
+    where even = (size $ board world) `mod` 2 == 0
+          gridsize      = squareSize world
+          boardx        = if even
+                            then round $ screenx / gridsize
+                          else round $ (screenx - gridsize / 2) / gridsize
+          boardy        = if even
+                            then round $ screeny / gridsize
+                          else round $ (screeny - gridsize / 2) / gridsize
           halfgridwidth = (size $ board world) `quot` 2
+          minbound      = if even
+                            then -halfgridwidth
+                          else -halfgridwidth - 1
+          maxbound      = halfgridwidth
+
+-- Given a world and a board-space co-ordinate position, return the screen-space co-ordinate of that position.
+boardSpaceToScreenSpace :: World -> Position -> (Float, Float)
+boardSpaceToScreenSpace world (boardx, boardy)
+    | even      = (screenx, screeny)
+    | otherwise = (screenx + gridsize / 2, screeny + gridsize / 2)
+    where even = (size $ board world) `mod` 2 == 0
+          gridsize = squareSize world
+          screenx = gridsize * fromIntegral boardx
+          screeny = gridsize * fromIntegral boardy
