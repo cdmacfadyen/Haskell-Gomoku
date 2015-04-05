@@ -48,12 +48,10 @@ initWorld = World initBoard Nothing Black
 makeMove :: Board -> Colour -> Position -> Maybe Board
 makeMove b col p = if contains p $ pieces b then Nothing else Just b {pieces = ((p,col) : (pieces b))}
 
--- Checks if a piece on the board is in the position you're trying to place a piece
+-- Checks if there is a piece of either colour at the given position
 contains :: Position -> [Piece] -> Bool
-contains coord [] = False
-contains coord ((position, col):xs) 
-  | coord == position = True
-  | otherwise         = contains coord xs
+contains position positions = (position, White) `elem` positions || (position, Black) `elem` positions
+
 
 -- Check whether the board is in a winning state for either player.
 -- Returns 'Nothing' if neither player has won yet
