@@ -61,8 +61,7 @@ contains coord ((position, col):xs)
 checkWon :: World -> Maybe Colour
 checkWon world = msum [(checkTransformColour piecelist transform position targetN colour)
                  | (position, colour) <- piecelist,
-                   transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft],
-                   colour <- [Black, White]]
+                   transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft]]
     where piecelist = pieces $ board world
           targetN   = target $ board world
 
