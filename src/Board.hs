@@ -1,8 +1,19 @@
 module Board where
 
+import Control.Monad
+
 -- | Player piece colour.
 data Colour = Black | White
   deriving (Show, Eq)
+
+transformUp = (0, 1)
+transformUpRight = (1, 1)
+transformRight = (1, 0)
+transformDownRight = (1, -1)
+transformDown = (0, -1)
+transformDownLeft = (-1, -1)
+transformLeft = (-1, 0)
+transformUpLeft = (-1, -1)
 
 -- | Switch current player.
 switch :: Colour -> Colour
@@ -48,42 +59,20 @@ contains coord ((position, col):xs)
 -- Returns 'Nothing' if neither player has won yet
 -- Returns 'Just c' if the player 'c' has won
 checkWon :: World -> Maybe Colour
-checkWon world = if (win (genWinList (size (board world)) (target (board world))) (board world) (switch (turn world))) 
-					then Just (switch (turn world)) 
-					else Nothing
+checkWon world = msum [(checkTransformColour piecelist transform position targetN colour)
+                 | (position, colour) <- piecelist,
+                   transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft],
+                   colour <- [Black, White]]
+    where piecelist = pieces $ board world
+          targetN   = target $ board world
 
--- Generates a list of 'winning patterns'.
-genWinList :: Int -> Int -> [[Position]]
-genWinList size target = (genVertical size) ++ (genHorizontal size) ++ (genDiagonal size target)
-
--- Generates a list of vertical win patterns.
-genVertical :: Int -> [[Position]]
-genVertical size = [[(x,y),(x,y+1),(x,y+2)] | x <- [-size..(size)], y <- [-size..size]]
-
--- Generates a list of horizontal win patterns.
-genHorizontal :: Int -> [[Position]]
-genHorizontal size = [[(x,y),(x+1,y),(x+2,y)] | x <- [-size..size], y <- [-size..size]]
-
--- Generates a list of diagonal win patterns.
-genDiagonal :: Int -> Int -> [[Position]]
-genDiagonal size target = [[(x,y),(x+1,y+1),(x+2,y+2)] 
-						  | x <- [-size..(size - (target - 1))], y <- [-size..(size - (target - 1))]]
-                       ++ [[(x,y),(x+1,y-1),(x+2,y-2)] 
-                       	  | x <- [-size..(size - (target - 1))], y <- [-size..(size - (target - 1))]]
-
--- Calls the isWin helper function.
-win :: [[Position]] -> Board -> Colour -> Bool
-win winList board colour = isWin (colourFilter board colour) winList
-
--- Recursively iterate through lists, checking for a pattern match.
-isWin :: [Position] -> [[Position]] -> Bool
-isWin positions (pattern:patterns) = (isFound pattern positions) || (isWin positions patterns)
-isWin [] _ = False
-isWin _ [] = False
-
-isFound :: Eq a => [a] -> [a] -> Bool
-isFound (x:xs) ys = (x `elem` ys) && (isFound xs ys)
-isFound [] _ = True
+-- Given the list of pieces, a transform direction to check, a position of a piece to check, the target number in a row and a colour to check victory for, return Just colour if colour has won, or Nothing otherwise.
+checkTransformColour :: [Piece] -> Position -> Position -> Int -> Colour -> Maybe Colour
+checkTransformColour piecelist (x_diff, y_diff) (x, y) targetN colour
+    | ((x, y), colour) `elem` piecelist = if targetN == 1 
+                                                then Just colour 
+                                                else checkTransformColour piecelist (x_diff, y_diff) (x + x_diff, y + y_diff) (targetN - 1) colour
+    | otherwise                           = Nothing
 
 -- Filters out the positions of the given colour.
 colourFilter :: Board -> Colour -> [Position]
