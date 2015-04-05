@@ -72,7 +72,7 @@ checkTransformColour piecelist (x_diff, y_diff) (x, y) targetN colour
     | ((x, y), colour) `elem` piecelist = if targetN == 1 
                                                 then Just colour 
                                                 else checkTransformColour piecelist (x_diff, y_diff) (x + x_diff, y + y_diff) (targetN - 1) colour
-    | otherwise                           = Nothing
+    | otherwise                         = Nothing
 
 -- Filters out the positions of the given colour.
 colourFilter :: Board -> Colour -> [Position]
