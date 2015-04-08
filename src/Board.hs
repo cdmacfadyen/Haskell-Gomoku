@@ -88,7 +88,7 @@ screenSpaceToBoardSpace :: World -> (Float, Float) -> Maybe Position
 screenSpaceToBoardSpace world (screenx, screeny) 
     | boardx >= minbound && boardx <= maxbound && boardy >= minbound && boardy <= maxbound = Just (boardx, boardy)
     | otherwise = Nothing
-    where even = (size $ board world) `mod` 2 == 0
+    where even = (size $ board world) `rem` 2 == 0
           gridsize      = squareSize world
           boardx        = if even
                             then round $ screenx / gridsize
@@ -107,7 +107,7 @@ boardSpaceToScreenSpace :: World -> Position -> (Float, Float)
 boardSpaceToScreenSpace world (boardx, boardy)
     | even      = (screenx, screeny)
     | otherwise = (screenx + gridsize / 2, screeny + gridsize / 2)
-    where even = (size $ board world) `mod` 2 == 0
+    where even = (size $ board world) `rem` 2 == 0
           gridsize = squareSize world
           screenx = gridsize * fromIntegral boardx
           screeny = gridsize * fromIntegral boardy
