@@ -52,6 +52,12 @@ makeMove b col p = if contains p $ pieces b then Nothing else Just b {pieces = (
 contains :: Position -> [Piece] -> Bool
 contains position positions = (position, White) `elem` positions || (position, Black) `elem` positions
 
+-- Gets a World from original World and Maybe Board
+-- Have to check if Maybe Board is Nothing or Board before returning World
+maybeBoardToWorld :: World -> Maybe Board -> World
+maybeBoardToWorld b Nothing = b
+maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b)}
+
 
 -- Check whether the board is in a winning state for either player.
 -- Returns 'Nothing' if neither player has won yet

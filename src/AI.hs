@@ -40,13 +40,30 @@ buildTree gen b c = let moves = gen b c in -- generated moves
 getBestMove :: Int -- ^ Maximum search depth
                -> GameTree -- ^ Initial game tree
                -> Position
-getBestMove = undefined
+getBestMove i gt = fst (head (next_moves gt))
 
 -- Update the world state after some time has passed
 updateWorld :: Float -- ^ time since last update (you can ignore this)
             -> World -- ^ current world state
             -> World
-updateWorld t w = w
+updateWorld t w
+	| turn w == Black = w
+	| otherwise       = getAIWorld w (buildTree (getPossibleMoves) (board w) (turn w))
+
+-- World generated for AI player after their move
+getAIWorld :: World -> GameTree -> World
+getAIWorld w gt = maybeBoardToWorld w (updateBoard (board w) (turn w) gt)
+
+-- Makes move passing in best move for 'White' and returns 'Maybe Board'
+updateBoard :: Board -> Colour -> GameTree -> Maybe Board
+updateBoard b col gt = makeMove b col (getBestMove 0 gt)
+
+-- List comprehension that goes through all positions on board and builds a list of unused positions.
+-- Have to check if position has been taken or not with 'contains'
+-- Returns a Bool to the above list comprehension from 'contains' function
+--- ( Note: Problem with odd sized board. Think it's something to do with 'div' 2 rounding up? )
+getPossibleMoves :: Board -> Colour -> [Position]
+getPossibleMoves b col = [ (x, y) | x <- [-(size b)`div`2..(size b)`div`2], y <- [-(size b)`div`2..(size b)`div`2], not $ contains (x, y) (pieces b) ]
 
 {- Hint: 'updateWorld' is where the AI gets called. If the world state
  indicates that it is a computer player's turn, updateWorld should use
@@ -61,5 +78,3 @@ updateWorld t w = w
  In a complete implementation, 'updateWorld' should also check if either 
  player has won and display a message if so.
 -}
-
-
