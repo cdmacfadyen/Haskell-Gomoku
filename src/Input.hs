@@ -18,6 +18,7 @@ handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) b = case maybepos of
     Nothing   -> return b
     where maybepos = mousePos b
 
+handleInput (EventKey (Char 'u') Down _ _) b = return $ undo b
 handleInput (EventKey (Char 's') Down _ _) b = do saveGame "gomoku.save" b
                                                   return b
 handleInput (EventKey (Char k) Down _ _) b = return $ trace ("Is there a win? " ++ show (checkWon b)) b
@@ -33,10 +34,3 @@ maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b)}
 saveGame :: String -> World -> IO ()
 saveGame filename w = do putStrLn $ "Game saved to file: " ++ show filename
                          writeFile filename (show w)
-
-{- Hint: when the 'World' is in a state where it is the human player's
- turn to move, a mouse press event should calculate which board position
- a click refers to, and update the board accordingly.
-
- At first, it is reasonable to assume that both players are human players.
--}

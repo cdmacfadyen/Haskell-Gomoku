@@ -13,8 +13,8 @@ main :: IO ()		-- ^ IO State.
 -- dealing with inputs and updating the world state.
 main = do args <- getArgs
           world <- if length args > 0
-              then loadGame $ args !! 0
-              else return $ initWorld 600
+                      then loadGame $ args !! 0
+                      else return $ initWorld 600
           -- Keeping draw and update world 'pure' functions which are then converted to IO equivalents only in this function, since they don't do any IO actions themselves.
           playIO (InWindow "Gomoku" (640, 640) (10, 10)) aquamarine 10
                  world

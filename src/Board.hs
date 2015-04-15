@@ -112,3 +112,13 @@ boardSpaceToScreenSpace world (boardx, boardy)
           gridsize = squareSize world
           screenx = gridsize * fromIntegral boardx
           screeny = gridsize * fromIntegral boardy
+
+undo :: World -> World
+undo w = do let (newmoves, newturn) = if length currentmoves > 0
+                                         then (tail currentmoves, switch currentturn)
+                                         else (currentmoves, currentturn)
+            let newboard = currentboard {pieces = newmoves}
+            w {board = newboard, turn = newturn}
+    where currentboard = board w
+          currentturn  = turn w
+          currentmoves = pieces currentboard
