@@ -8,22 +8,22 @@ import Debug.Trace
 -- Update the world state given an input event. Some sample input events
 -- are given; when they happen, there is a trace printed on the console
 handleInput :: Event -> World -> IO World
-handleInput (EventMotion (x, y)) b = return b {mousePos = pos}
-    where pos = screenSpaceToBoardSpace b (x, y)
+handleInput (EventMotion (x, y)) w = return w {mousePos = pos}
+    where pos = screenSpaceToBoardSpace w (x, y)
 
 -- Initiates check to see if placement is valid
 -- Passes in point that's closest to a valid placement coord
-handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) b = case maybepos of
-    Just pos  -> return $ maybeBoardToWorld b $ makeMove (board b) (turn b) pos
-    Nothing   -> return b
-    where maybepos = mousePos b
+handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) w = case maybepos of
+    Just pos  -> return $ maybeBoardToWorld w $ makeMove (board w) (turn w) pos
+    Nothing   -> return w
+    where maybepos = mousePos w
 
-handleInput (EventKey (Char 'u') Down _ _) b = return $ undo b
-handleInput (EventKey (Char 's') Down _ _) b = do saveGame "gomoku.save" b
-                                                  return b
-handleInput (EventKey (Char k) Down _ _) b = return $ trace ("Is there a win? " ++ show (checkWon b)) b
-handleInput (EventKey (Char k) Up _ _) b = return b
-handleInput e b = return b
+handleInput (EventKey (Char 'u') Down _ _) w = return $ undo 2 w -- Undo twice to get back to player's move
+handleInput (EventKey (Char 's') Down _ _) w = do saveGame "gomoku.save" w
+                                                  return w
+handleInput (EventKey (Char k) Down _ _) w = return $ trace ("Is there a win? " ++ show (checkWon w)) w
+handleInput (EventKey (Char k) Up _ _) w = return w
+handleInput e w = return w
 
 saveGame :: String -> World -> IO ()
 saveGame filename w = do putStrLn $ "Game saved to file: " ++ show filename

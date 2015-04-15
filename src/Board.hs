@@ -119,12 +119,17 @@ boardSpaceToScreenSpace world (boardx, boardy)
           screenx = gridsize * fromIntegral boardx
           screeny = gridsize * fromIntegral boardy
 
-undo :: World -> World
-undo w = do let (newmoves, newturn) = if length currentmoves > 0
-                                         then (tail currentmoves, switch currentturn)
-                                         else (currentmoves, currentturn)
-            let newboard = currentboard {pieces = newmoves}
-            w {board = newboard, turn = newturn}
+-- Undoes the supplied number of moves
+undo :: Int -> World -> World
+undo n w = foldr (.) id (replicate n undoOne) w
+
+-- Undoes a single move
+undoOne :: World -> World
+undoOne w = do let (newmoves, newturn) = if length currentmoves > 0
+                                            then (tail currentmoves, switch currentturn)
+                                            else (currentmoves, currentturn)
+               let newboard = currentboard {pieces = newmoves}
+               w {board = newboard, turn = newturn}
     where currentboard = board w
           currentturn  = turn w
           currentmoves = pieces currentboard
