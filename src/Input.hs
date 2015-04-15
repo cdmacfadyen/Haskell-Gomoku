@@ -25,8 +25,6 @@ handleInput (EventKey (Char k) Down _ _) b = return $ trace ("Is there a win? " 
 handleInput (EventKey (Char k) Up _ _) b = return b
 handleInput e b = return b
 
--- Gets a World from original World and Maybe Board
--- Have to check if Maybe Board is Nothing or Board before returning World
 maybeBoardToWorld :: World -> Maybe Board -> World
 maybeBoardToWorld b Nothing = b
 maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b)}
