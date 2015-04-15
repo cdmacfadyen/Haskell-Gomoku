@@ -21,7 +21,7 @@ handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) w = case maybepos of
 handleInput (EventKey (Char 'u') Down _ _) w = return $ undo 2 w -- Undo twice to get back to player's move
 handleInput (EventKey (Char 's') Down _ _) w = do saveGame "gomoku.save" w
                                                   return w
-handleInput (EventKey (Char k) Down _ _) w = return $ trace ("Is there a win? " ++ show (checkWon w)) w
+handleInput (EventKey (Char k) Down _ _) w = return $ trace ("Is there a win? " ++ show (won $ board w)) w
 handleInput (EventKey (Char k) Up _ _) w = return w
 handleInput e w = return w
 

@@ -30,7 +30,7 @@ type Piece = (Position, Colour)
 data Board = Board { size :: Int, -- ^ Board Size.
                      target :: Int, -- ^ Target 'in-a-row'
                      pieces :: [Piece], -- ^ Position List.
-                   	 won :: Bool } -- ^ Win Status.
+                   	 won :: Maybe Colour } -- ^ Win Status.
          deriving (Read, Show)
 
 data World = World { board :: Board, -- ^ Board Representation
@@ -40,7 +40,7 @@ data World = World { board :: Board, -- ^ Board Representation
          deriving (Read, Show)
 
 -- | Default board: 6x6, target is 3 in a row, no initial pieces
-initBoard = Board 6 3 [] False
+initBoard = Board 6 3 [] Nothing
 
 -- | Default world: initial board, black is current player.
 initWorld = World initBoard Nothing Black
@@ -48,7 +48,8 @@ initWorld = World initBoard Nothing Black
 -- Play a move on the board; return 'Nothing' if the move is invalid
 -- (e.g. outside the range of the board, or there is a piece already there)
 makeMove :: Board -> Colour -> Position -> Maybe Board
-makeMove b col p = if contains p $ pieces b then Nothing else Just b {pieces = ((p,col) : (pieces b))}
+makeMove b col p = if contains p $ pieces b then Nothing else Just newboard {won = checkWon newboard}
+        where newboard = b {pieces = ((p, col) : (pieces b))}
 
 -- Checks if there is a piece of either colour at the given position
 contains :: Position -> [Piece] -> Bool
@@ -64,13 +65,13 @@ maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b)}
 -- Check whether the board is in a winning state for either player.
 -- Returns 'Nothing' if neither player has won yet
 -- Returns 'Just c' if the player 'c' has won
-checkWon :: World -> Maybe Colour
-checkWon world = msum [(checkTransformColour piecelist transform position targetN colour)
-                 | (position, colour) <- piecelist,
-                   transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft],
-                   onedge position transform] -- Only check pieces that are on the edges of a row/column/diagonal at the top level, middle spaces will be checked by recursion from these, and this ensures you can't have more than targetN in a row.
-    where piecelist = pieces $ board world
-          targetN   = target $ board world
+checkWon :: Board -> Maybe Colour
+checkWon b = msum [(checkTransformColour piecelist transform position targetN colour)
+                    | (position, colour) <- piecelist,
+                      transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft],
+                      onedge position transform] -- Only check pieces that are on the edges of a row/column/diagonal at the top level, middle spaces will be checked by recursion from these, and this ensures you can't have more than targetN in a row.
+    where piecelist = pieces b
+          targetN   = target b
           onedge (x, y) (x_diff, y_diff) = not (contains (x - x_diff, y - y_diff) piecelist)
 
 -- Given the list of pieces, a transform direction to check, a position of a piece to check, the target number in a row and a colour to check victory for, return Just colour if colour has won, or Nothing otherwise.
