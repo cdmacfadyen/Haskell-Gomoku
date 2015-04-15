@@ -25,10 +25,6 @@ handleInput (EventKey (Char k) Down _ _) b = return $ trace ("Is there a win? " 
 handleInput (EventKey (Char k) Up _ _) b = return b
 handleInput e b = return b
 
-maybeBoardToWorld :: World -> Maybe Board -> World
-maybeBoardToWorld b Nothing = b
-maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b)}
-
 saveGame :: String -> World -> IO ()
 saveGame filename w = do putStrLn $ "Game saved to file: " ++ show filename
                          writeFile filename (show w)
