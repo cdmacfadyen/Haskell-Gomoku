@@ -38,7 +38,7 @@ data World = World { board :: Board, -- ^ Board Representation
              		 width :: Int } -- ^ Width
 
 -- | Default board: 6x6, target is 3 in a row, no initial pieces
-initBoard = Board 6 3 [] False
+initBoard = Board 19 5 [] False
 
 -- | Default world: initial board, black is current player.
 initWorld = World initBoard Nothing Black
@@ -117,3 +117,13 @@ boardSpaceToScreenSpace world (boardx, boardy)
           gridsize = squareSize world
           screenx = gridsize * fromIntegral boardx
           screeny = gridsize * fromIntegral boardy
+
+is_even :: Board -> Bool
+is_even board = (size board) `rem` 2 == 0
+
+get_min :: Board -> Int
+get_min board = if is_even board then -halfgridwidth else -halfgridwidth - 1
+    where halfgridwidth = (size board) `quot` 2
+
+get_max :: Board -> Int
+get_max board = (size board) `quot` 2

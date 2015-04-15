@@ -2,79 +2,75 @@ module AI where
 
 import Board
 
-data GameTree = GameTree { game_board :: Board,
-                           game_turn :: Colour,
-                           next_moves :: [(Position, GameTree)] }
+data GameTree = GameTree { game_board :: Board, -- ^ Board.
+                           game_turn :: Colour, -- ^ Player turn.
+                           next_moves :: [(Position, GameTree)] } -- ^ List of (Position, Tree).
 
--- Given a function to generate plausible moves (i.e. board positions)
--- for a player (Col) on a particular board, generate a (potentially)
--- infinite game tree.
---
--- (It's not actually infinite since the board is finite, but it's sufficiently
--- big that you might as well consider it infinite!)
---
--- An important part of the AI is the 'gen' function you pass in here.
--- Rather than generating every possible move (which would result in an
--- unmanageably large game tree!) it could, for example, generate moves
--- according to various simpler strategies.
-buildTree :: (Board -> Colour -> [Position]) -- ^ Move generator
-             -> Board -- ^ board state
-             -> Colour -- ^ player to play next
-             -> GameTree
-buildTree gen b c = let moves = gen b c in -- generated moves
-                        GameTree b c (mkNextStates moves)
+build_tree:: (Board -> Colour -> [Position]) -- ^ Function to generate possible moves.
+            -> Board -- ^ Board to represent state.
+            -> Colour -- ^ Next player.
+            -> GameTree -- ^ The generated tree.
+build_tree gen_fun board colour = let moves = gen_fun board colour in -- Generated moves.
+                        GameTree board colour (make_states moves)
   where
-    mkNextStates :: [Position] -> [(Position, GameTree)]
-    mkNextStates [] = []
-    mkNextStates (pos : xs)
-        = case makeMove b c pos of -- try making the suggested move
-               Nothing -> mkNextStates xs -- not successful, no new state
-               Just b' -> (pos, buildTree gen b' (switch c)) : mkNextStates xs
-                             -- successful, make move and build tree from 
-                             -- here for opposite player
+    make_states :: [Position] -> [(Position, GameTree)]
+    make_states [] = []
+    make_states (pos : positions)
+        = case makeMove board colour pos of -- Try making the suggested move.
+               Nothing -> make_states positions -- Not successful, no new state.
+               -- Success, make the move and build the tree for the opposite player from here.
+               Just board' -> (pos, build_tree gen_fun board' (switch colour)) : make_states positions
 
--- Get the best next move from a (possibly infinite) game tree. This should
--- traverse the game tree up to a certain depth, and pick the move which
--- leads to the position with the best score for the player whose turn it
--- is at the top of the game tree.
-getBestMove :: Int -- ^ Maximum search depth
-               -> GameTree -- ^ Initial game tree
-               -> Position
-getBestMove i gt = fst (head (next_moves gt))
+-- List comprehension to examine all positions on the board and
+-- build a list of unused positions. Availability is checked by way
+-- of the 'contains' method.
+get_possible_moves :: Board -- ^ Current board.
+                      -> Colour -- ^ Player to check for.
+                      -> [Position] -- ^ List of positions.
+get_possible_moves board colour = [ (x, y) 
+                                  | x <- [min..max], 
+                                    y <- [min..max], not $ contains (x, y) (pieces board)]
+    where 
+      min = get_min board -- Minimum board bound, depending on if even/odd.
+      max = get_max board -- Maximum board bound, depending on if even/odd.
 
--- Update the world state after some time has passed
-updateWorld :: Float -- ^ time since last update (you can ignore this)
-            -> World -- ^ current world state
-            -> World
-updateWorld t w
-	| turn w == Black = w
-	| otherwise       = getAIWorld w (buildTree (getPossibleMoves) (board w) (turn w))
+-- This function gets the best move from an infinite game tree.
+-- It should traverse up to a certain depth, and pick the move
+-- which leads to the position with the best score for the player
+-- whose turn it is at the top of the tree.
+get_best_move :: Int -- ^ Maximum search depth.
+               -> GameTree -- ^ Initial game tree.
+               -> Position -- ^ Best position.
+get_best_move depth tree = fst (head (next_moves tree))
 
--- World generated for AI player after their move
-getAIWorld :: World -> GameTree -> World
-getAIWorld w gt = maybeBoardToWorld w (updateBoard (board w) (turn w) gt)
+-- Makes an AI move, based on the best result from tree, and returns
+-- a maybe board if successful.
+move_ai :: Board -> Colour -> GameTree -> Maybe Board
+move_ai board colour tree = makeMove board colour (get_best_move 0 tree)
 
--- Makes move passing in best move for 'White' and returns 'Maybe Board'
-updateBoard :: Board -> Colour -> GameTree -> Maybe Board
-updateBoard b col gt = makeMove b col (getBestMove 0 gt)
+-- AI world, resulting from an AI move.
+get_ai_world :: World -- ^ AI world.
+                -> GameTree -- ^ Tree
+                -> World -- ^ New updated world.
+get_ai_world world tree = maybeBoardToWorld world (move_ai (board world) (turn world) tree)
 
--- List comprehension that goes through all positions on board and builds a list of unused positions.
--- Have to check if position has been taken or not with 'contains'
--- Returns a Bool to the above list comprehension from 'contains' function
---- ( Note: Problem with odd sized board. Think it's something to do with 'div' 2 rounding up? )
-getPossibleMoves :: Board -> Colour -> [Position]
-getPossibleMoves b col = [ (x, y) | x <- [-(size b)`div`2..(size b)`div`2], y <- [-(size b)`div`2..(size b)`div`2], not $ contains (x, y) (pieces b) ]
+-- Update the world state after some time has passed.
+updateWorld :: Float -- ^ Time since last update.
+            -> World -- ^ Current world state.
+            -> World -- ^ New world state.
+updateWorld time world
+	             | turn world == Black = world -- This is the users turn.
+	             | otherwise       = get_ai_world world (build_tree (get_possible_moves) (board world) (turn world))
+ 
+ ----------------------------------------------------------------------------------------------------
+ ----------------------------------------------------------------------------------------------------
+ ----------------------------------------------------------------------------------------------------
 
-{- Hint: 'updateWorld' is where the AI gets called. If the world state
- indicates that it is a computer player's turn, updateWorld should use
- 'getBestMove' to find where the computer player should play, and update
- the board in the world state with that move.
+ -- If the AI gets to go first, it shouldn't even think - it should just pick the middle position.
+first_move :: Board -> Position
+first_move board = let coordinate = (size board) `div` 2 in (coordinate,coordinate)
 
- At first, it is reasonable for this to be a random move!
 
- If both players are human players, the simple version above will suffice,
- since it does nothing.
 
- In a complete implementation, 'updateWorld' should also check if either 
- player has won and display a message if so.
--}
+
+
