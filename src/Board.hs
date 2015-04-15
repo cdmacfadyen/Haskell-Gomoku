@@ -4,7 +4,7 @@ import Control.Monad
 
 -- | Player piece colour.
 data Colour = Black | White
-  deriving (Show, Eq)
+  deriving (Read, Show, Eq)
 
 transformUp = (0, 1)
 transformUpRight = (1, 1)
@@ -30,12 +30,13 @@ data Board = Board { size :: Int, -- ^ Board Size.
                      target :: Int, -- ^ Target 'in-a-row'
                      pieces :: [Piece], -- ^ Position List.
                    	 won :: Bool } -- ^ Win Status.
-         deriving Show
+         deriving (Read, Show)
 
 data World = World { board :: Board, -- ^ Board Representation
                      mousePos :: Maybe Position,
                      turn :: Colour, -- ^ Current Player
              		 width :: Int } -- ^ Width
+         deriving (Read, Show)
 
 -- | Default board: 6x6, target is 3 in a row, no initial pieces
 initBoard = Board 6 3 [] False
