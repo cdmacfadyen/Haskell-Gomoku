@@ -1,6 +1,7 @@
 module Board where
 
 import Control.Monad
+import Debug.Trace
 
 -- | Player piece colour.
 data Colour = Black | White
@@ -66,17 +67,21 @@ maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b)}
 checkWon :: World -> Maybe Colour
 checkWon world = msum [(checkTransformColour piecelist transform position targetN colour)
                  | (position, colour) <- piecelist,
-                   transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft]]
+                   transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft],
+                   onedge position transform] -- Only check pieces that are on the edges of a row/column/diagonal at the top level, middle spaces will be checked by recursion from these, and this ensures you can't have more than targetN in a row.
     where piecelist = pieces $ board world
           targetN   = target $ board world
+          onedge (x, y) (x_diff, y_diff) = not (contains (x - x_diff, y - y_diff) piecelist)
 
 -- Given the list of pieces, a transform direction to check, a position of a piece to check, the target number in a row and a colour to check victory for, return Just colour if colour has won, or Nothing otherwise.
 checkTransformColour :: [Piece] -> Position -> Position -> Int -> Colour -> Maybe Colour
 checkTransformColour piecelist (x_diff, y_diff) (x, y) targetN colour
-    | ((x, y), colour) `elem` piecelist = if targetN == 1 
-                                                then Just colour 
+    | ((x, y), colour) `elem` piecelist = if targetN == 0
+                                                then Nothing
                                                 else checkTransformColour piecelist (x_diff, y_diff) (x + x_diff, y + y_diff) (targetN - 1) colour
-    | otherwise                         = Nothing
+    | otherwise                         = if targetN == 0
+                                                then Just colour
+                                                else Nothing
 
 -- Filters out the positions of the given colour.
 colourFilter :: Board -> Colour -> [Position]
