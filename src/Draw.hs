@@ -6,7 +6,7 @@ import Board
 
 -- | Overall Draw Function.
 drawWorld :: World -> Picture -> Picture -> Picture -> Picture
-drawWorld world background black_p white_p = Pictures[background, drawBoard world, drawPieces world black_p white_p, highlight world (mousePos world)]
+drawWorld world background black_p white_p = Pictures[background, drawBoard world, drawPieces world black_p white_p, highlight world, draw_hint world]
 
 -- | Draws the board.
 drawBoard :: World -> Picture
@@ -35,9 +35,19 @@ drawPiece world (position, col) black_p white_p = uncurry Translate (boardSpaceT
 colour_piece :: Colour -> Picture -> Picture -> Picture
 colour_piece col black_p white_p = if col == Black then black_p else white_p
 
-highlight :: World-> Maybe Position -> Picture
-highlight w Nothing = Blank
-highlight w (Just p) = if contains p $ pieces $ board w then Blank else drawHighlight w p
+highlight :: World -> Picture
+highlight w = case mousep of 
+		           Just p  -> if contains p $ pieces $ board w then Blank else drawHighlight w p
+		           Nothing -> Blank
+    where mousep = mousePos (board w)
 
 drawHighlight :: World -> Position -> Picture
-drawHighlight world position  = Color (greyN 0.2) $ uncurry Translate (boardSpaceToScreenSpace world position) $ thickCircle (squareSize world / 2) 9
+drawHighlight w p = Color (greyN 0.2) $ uncurry Translate (boardSpaceToScreenSpace w p) $ thickCircle (squareSize w / 2) 9
+
+draw_hint :: World -> Picture
+draw_hint w  = case (hint (board w)) of
+					Just pos -> Color red $ uncurry Translate (boardSpaceToScreenSpace w pos) $ thickCircle (squareSize w / 2) 9
+					Nothing  -> Blank
+
+
+

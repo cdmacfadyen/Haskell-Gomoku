@@ -29,26 +29,27 @@ type Piece = (Position, Colour)
 
 data Board = Board { size :: Int, -- ^ Board Size.
                      target :: Int, -- ^ Target 'in-a-row'
+                     mousePos :: Maybe Position,
+                     hint :: Maybe Position,
                      pieces :: [Piece], -- ^ Position List.
                    	 won :: Maybe Colour } -- ^ Win Status.
          deriving (Read, Show)
 
 data World = World { board :: Board, -- ^ Board Representation
-                     mousePos :: Maybe Position,
                      turn :: Colour,
              		     width :: Int } -- ^ Width
          deriving (Read, Show)
 
 -- | Default board: 6x6, target is 3 in a row, no initial pieces
-initBoard = Board 3 3 [] Nothing
+initBoard = Board 3 3 Nothing Nothing[] Nothing
 
 -- | Default world: initial board, black is current player.
-initWorld = World initBoard Nothing Black
+initWorld = World initBoard Black
 
 -- Play a move on the board; return 'Nothing' if the move is invalid
 -- (e.g. outside the range of the board, or there is a piece already there)
 makeMove :: Board -> Colour -> Position -> Maybe Board
-makeMove b col p = if contains p $ pieces b then Nothing else Just newboard {won = checkWon newboard}
+makeMove b col p = if contains p $ pieces b then Nothing else Just newboard {won = checkWon newboard, hint = Nothing}
         where newboard = b {pieces = ((p, col) : (pieces b))}
 
 -- Checks if there is a piece of either colour at the given position
