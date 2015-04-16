@@ -45,18 +45,18 @@ get_best_move :: Int -- ^ Maximum search depth.
                -> GameTree -- ^ Initial game tree.
                -> Position -- ^ Best position.
 get_best_move depth tree = trace (show (game_turn tree) ++ " : " ++ (show choice)) choice
-          where get_position (pos, tree) = pos
-                choice = get_position $ alphabeta tree depth -1/0 1/0 (game_turn tree)
+          where get_position (_, pos) = pos
+                choice = get_position (alphabeta tree depth -1/0 1/0 (game_turn tree))
 
 alphabeta :: GameTree -> -- ^ The root of the game tree
              Int      -> -- ^ The (maximum) depth of the game tree to traverse
              Int      -> -- ^ The current alpha value
              Int      -> -- ^ The current beta value
              Colour   -> -- ^ The colour of the player to maximise for
-             Int
+             (Int, Position)
 alphabeta tree depth alpha beta colour = if depth == 0 || length (next_moves tree) == 0
-                                            then evaluate (game_board tree) (game_turn tree)
-                                         else if currentplayer == colour then
+                                            then (evaluate (game_board tree) (game_turn tree), 
+                                         else if colour == (game_turn tree) then
                                                  maximise (next_moves tree) depth -1/0 alpha beta colour
                                               else minimise (next_moves tree) depth 1/0 alpha beta colour
 
@@ -65,26 +65,30 @@ maximise :: GameTree  ->
             Int       ->
             Int       ->
             Colour    ->
-            Int
---maximise {next_moves=[]} _ value _ _ _ = value
-maximise {next_moves=children@((_, child):_)} depth value alpha beta colour = if beta <= alpha || null children
-                                                                        then value
-                                                                     else do let newValue = max v (alphabeta child (depth - 1) alpha beta colour)
-                                                                             let newAlpha = max alpha newValue
-                                                                             maximise child depth alpha beta colour
+            (Int, Position)
+
+maximise GameTree {next_moves=children} depth value alpha beta colour  = case children of 
+                                    ((_, child):_) -> if beta <= alpha || null children
+                                                         then (value, child)
+                                                         else do let newValue = max value (alphabeta child (depth - 1) alpha beta colour)
+                                                                 let newAlpha = max alpha newValue
+                                                                 maximise child depth alpha beta colour
+                                    otherwise      -> value
 
 minimise :: GameTree  ->
             Int       ->
             Int       ->
             Int       ->
             Colour    ->
-            Int
---minimise {next_moves=[]} _ value _ _ _ = value
-minimise {next_moves=children@((_, child):_)} depth value alpha beta colour = if beta <= alpha || null children
-                                                                        then value
-                                                                     else do let newValue = min v (alphabeta child (depth - 1) alpha beta colour)
-                                                                             let newBeta = max beta newValue
-                                                                             minimise child depth alpha beta colour
+            (Int, Position)
+
+minimise GameTree {next_moves=children} depth value alpha beta colour  = case children of 
+                                    ((_, child):_) -> if beta <= alpha || null children
+                                                         then (value, child)
+                                                         else do let newValue = min value (alphabeta child (depth - 1) alpha beta colour)
+                                                                 let newAlpha = min alpha newValue
+                                                                 minimise child depth alpha beta colour
+                                    otherwise      -> value
 -- An evaluation function for a minimax search. Given a board and a colour
 -- return an integer indicating how good the board is for that colour.
 evaluate :: Board -> Colour -> Int
