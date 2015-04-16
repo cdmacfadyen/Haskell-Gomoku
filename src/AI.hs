@@ -85,11 +85,12 @@ minimise {next_moves=children@((_, child):_)} depth value alpha beta colour = if
                                                                      else do let newValue = min v (alphabeta child (depth - 1) alpha beta colour)
                                                                              let newBeta = max beta newValue
                                                                              minimise child depth alpha beta colour
-
 -- An evaluation function for a minimax search. Given a board and a colour
 -- return an integer indicating how good the board is for that colour.
 evaluate :: Board -> Colour -> Int
-evaluate board colour = case checkWon board of {(Just White) -> 1; (Just Black) -> -1; (_) -> 0}
+evaluate b col = sum [(countNConnected b n col) * (weight n)| n <- [(size b), (size b) - 1 .. 2]] +
+                 sum [(countNConnected b n (switch col)) * (-weight n)| n <- [(size b), (size b) - 1 .. 2]]
+  where weight n = 2 ^ n
 
 {-
 heuristic :: Int -> Colour -> [(Position, GameTree)] -> (Position, GameTree)
@@ -105,8 +106,8 @@ minimax_search depth colour maxPlayer (GameTree board _ []) = eval
 minimax_search 0 colour maxPlayer (GameTree board _ _) = eval
                         where eval = evaluate board colour
 minimax_search depth colour maxPlayer (GameTree board game_turn moves)
-       | checkWon board == Just colour = 1
-       | checkWon board == Just (switch colour) = -1
+       | checkWon board == Just colour = 100
+       | checkWon board == Just (switch colour) = -100
        | maxPlayer     = maximum $ max
        | otherwise     = minimum $ min
           where nextTrees = map treeOf moves
@@ -119,7 +120,7 @@ minimax_search depth colour maxPlayer (GameTree board game_turn moves)
 -- Makes an AI move, based on the best result from tree, and returns
 -- a maybe board if successful.
 move_ai :: World -> Board -> Colour -> Maybe Board
-move_ai world board colour = makeMove board colour (get_best_move 3 (build_tree get_possible_moves board (turn world)))
+move_ai world board colour = makeMove board colour (get_best_move 1 (build_tree get_possible_moves board (turn world)))
 
 -- AI world, resulting from an AI move.
 get_ai_world :: World -> World -- ^ New updated world.

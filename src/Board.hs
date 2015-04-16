@@ -41,7 +41,7 @@ data World = World { board :: Board, -- ^ Board Representation
          deriving (Read, Show)
 
 -- | Default board: 6x6, target is 3 in a row, no initial pieces
-initBoard = Board 3 3 Nothing Nothing[] Nothing
+initBoard = Board 6 6 Nothing Nothing [] Nothing
 
 -- | Default world: initial board, black is current player.
 initWorld = World initBoard Black
@@ -67,13 +67,7 @@ maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b)}
 -- Returns 'Nothing' if neither player has won yet
 -- Returns 'Just c' if the player 'c' has won
 checkWon :: Board -> Maybe Colour
-checkWon b = msum [(checkTransformColour piecelist transform position targetN colour)
-                    | (position, colour) <- piecelist,
-                      transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft],
-                      onedge position transform] -- Only check pieces that are on the edges of a row/column/diagonal at the top level, middle spaces will be checked by recursion from these, and this ensures you can't have more than targetN in a row.
-    where piecelist = pieces b
-          targetN   = target b
-          onedge (x, y) (x_diff, y_diff) = not (contains (x - x_diff, y - y_diff) piecelist)
+checkWon b = checkn b (target b) 
 
 -- Given the list of pieces, a transform direction to check, a position of a piece to check, the target number in a row and a colour to check victory for, return Just colour if colour has won, or Nothing otherwise.
 checkTransformColour :: [Piece] -> Position -> Position -> Int -> Colour -> Maybe Colour
@@ -85,9 +79,43 @@ checkTransformColour piecelist (x_diff, y_diff) (x, y) targetN colour
                                                 then Just colour
                                                 else Nothing
 
+checkTransformColourCount :: [Piece] -> Position -> Position -> Int -> Colour -> Int
+checkTransformColourCount piecelist (x_diff, y_diff) (x, y) targetN colour
+    | ((x, y), colour) `elem` piecelist = if targetN == 0
+                                                then 0
+                                                else checkTransformColourCount piecelist (x_diff, y_diff) (x + x_diff, y + y_diff) (targetN - 1) colour
+    | otherwise                         = if targetN == 0
+                                                then 1
+                                                else 0
+
 -- Filters out the positions of the given colour.
 colourFilter :: Board -> Colour -> [Position]
 colourFilter board colour = map fst $ filter (\(_, col) -> col == colour) (pieces board)
+
+---- An evaluation function for a minimax search. Given a board and a colour
+---- return an integer indicating how good the board is for that colour.
+--evaluate :: Board -> Colour -> Int
+--evaluate board colour = case checkWon board of {(Just White) -> 1; (Just Black) -> -1; (_) -> 0}
+
+-- Check whether the board is in a winning state for either player.
+-- Returns 'Nothing' if neither player has won yet
+-- Returns 'Just c' if the player 'c' has won
+checkn :: Board -> Int -> Maybe Colour
+checkn b targetN = msum [(checkTransformColour piecelist transform position targetN colour)
+                    | (position, colour) <- piecelist,
+                      transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft],
+                      onedge position transform] -- Only check pieces that are on the edges of a row/column/diagonal at the top level, middle spaces will be checked by recursion from these, and this ensures you can't have more than targetN in a row.
+    where piecelist = pieces b
+          onedge (x, y) (x_diff, y_diff) = not (contains (x - x_diff, y - y_diff) piecelist)
+
+-- Takes a board, a number in a row to check for and a colour to check for, return the number of lines of exactly that length belonging to that player
+countNConnected :: Board -> Int -> Colour -> Int
+countNConnected b targetN col = sum [checkTransformColourCount piecelist transform position targetN col
+                                    |(position, colour) <- piecelist,
+                                     transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft],
+                                    onedge position transform && col == colour]
+    where piecelist = pieces b
+          onedge (x, y) (x_diff, y_diff) = not (contains (x - x_diff, y - y_diff) piecelist)
 
 squareSize :: World -> Float
 squareSize w = fromIntegral (width w) / (fromIntegral . size $ board w)
