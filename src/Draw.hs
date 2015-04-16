@@ -30,7 +30,8 @@ drawPieces :: World -> Picture -> Picture -> Picture
 drawPieces world black_piece white_piece = Pictures [drawPiece world piece black_piece white_piece | piece <- pieces $ board world]
 
 drawPiece :: World -> (Position, Colour) -> Picture -> Picture -> Picture
-drawPiece world (position, col) black_p white_p = uncurry Translate (boardSpaceToScreenSpace world position) $ Scale 0.18 0.18 (colour_piece col black_p white_p)
+drawPiece world (position, col) black_p white_p = uncurry Translate (boardSpaceToScreenSpace world position) $ Scale scaled scaled (colour_piece col black_p white_p)
+								where scaled = (squareSize world) / 420
 
 colour_piece :: Colour -> Picture -> Picture -> Picture
 colour_piece col black_p white_p = if col == Black then black_p else white_p

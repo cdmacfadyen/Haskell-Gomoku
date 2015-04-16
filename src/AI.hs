@@ -61,8 +61,8 @@ minimax_search depth colour maxPlayer (GameTree board _ []) = eval
 minimax_search 0 colour maxPlayer (GameTree board _ _) = eval
                         where eval = evaluate board colour
 minimax_search depth colour maxPlayer (GameTree board game_turn moves)
-       | checkWon board == Just colour = 1
-       | checkWon board == Just (switch colour) = -1
+       | checkWon board == Just colour = 100
+       | checkWon board == Just (switch colour) = -100
        | maxPlayer     = maximum $ max
        | otherwise     = minimum $ min
           where nextTrees = map treeOf moves
@@ -73,7 +73,7 @@ minimax_search depth colour maxPlayer (GameTree board game_turn moves)
 -- Makes an AI move, based on the best result from tree, and returns
 -- a maybe board if successful.
 move_ai :: World -> Board -> Colour -> Maybe Board
-move_ai world board colour = makeMove board colour (get_best_move 3 (build_tree get_possible_moves board (turn world)))
+move_ai world board colour = makeMove board colour (get_best_move 1 (build_tree get_possible_moves board (turn world)))
 
 -- AI world, resulting from an AI move.
 get_ai_world :: World -> World -- ^ New updated world.
