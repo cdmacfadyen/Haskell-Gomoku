@@ -36,15 +36,14 @@ data Board = Board { size :: Int, -- ^ Board Size.
 data World = World { board :: Board, -- ^ Board Representation
                      mousePos :: Maybe Position,
                      turn :: Colour,
-                     utility :: Double, -- ^ Current Player
              		     width :: Int } -- ^ Width
          deriving (Read, Show)
 
 -- | Default board: 6x6, target is 3 in a row, no initial pieces
-initBoard = Board 6 3 [] Nothing
+initBoard = Board 3 3 [] Nothing
 
 -- | Default world: initial board, black is current player.
-initWorld = World initBoard Nothing Black 0
+initWorld = World initBoard Nothing Black
 
 -- Play a move on the board; return 'Nothing' if the move is invalid
 -- (e.g. outside the range of the board, or there is a piece already there)
@@ -92,7 +91,7 @@ colourFilter board colour = map fst $ filter (\(_, col) -> col == colour) (piece
 -- An evaluation function for a minimax search. Given a board and a colour
 -- return an integer indicating how good the board is for that colour.
 evaluate :: Board -> Colour -> Int
-evaluate = undefined
+evaluate board colour = case checkWon board of {(Just White) -> 1; (Just Black) -> -1; (_) -> 0}
 
 squareSize :: World -> Float
 squareSize w = fromIntegral (width w) / (fromIntegral . size $ board w)
