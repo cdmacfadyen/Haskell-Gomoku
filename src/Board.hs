@@ -89,11 +89,6 @@ checkTransformColour piecelist (x_diff, y_diff) (x, y) targetN colour
 colourFilter :: Board -> Colour -> [Position]
 colourFilter board colour = map fst $ filter (\(_, col) -> col == colour) (pieces board)
 
--- An evaluation function for a minimax search. Given a board and a colour
--- return an integer indicating how good the board is for that colour.
-evaluate :: Board -> Colour -> Int
-evaluate board colour = case checkWon board of {(Just White) -> 1; (Just Black) -> -1; (_) -> 0}
-
 squareSize :: World -> Float
 squareSize w = fromIntegral (width w) / (fromIntegral . size $ board w)
 
