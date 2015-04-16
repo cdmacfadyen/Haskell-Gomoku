@@ -59,18 +59,5 @@ updateWorld :: Float -- ^ Time since last update.
             -> World -- ^ Current world state.
             -> World -- ^ New world state.
 updateWorld time world
-	             | turn world == Black = world -- This is the users turn.
-	             | otherwise       = get_ai_world world (build_tree (get_possible_moves) (board world) (turn world))
- 
- ----------------------------------------------------------------------------------------------------
- ----------------------------------------------------------------------------------------------------
- ----------------------------------------------------------------------------------------------------
-
- -- If the AI gets to go first, it shouldn't even think - it should just pick the middle position.
-first_move :: Board -> Position
-first_move board = let coordinate = (size board) `div` 2 in (coordinate,coordinate)
-
-
-
-
-
+	| turn world == Black = world -- This is the users turn.
+	| otherwise       = get_ai_world world (build_tree get_possible_moves (board world) (turn world))

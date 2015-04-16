@@ -35,15 +35,16 @@ data Board = Board { size :: Int, -- ^ Board Size.
 
 data World = World { board :: Board, -- ^ Board Representation
                      mousePos :: Maybe Position,
-                     turn :: Colour, -- ^ Current Player
-             		 width :: Int } -- ^ Width
+                     turn :: Colour,
+                     utility :: Double, -- ^ Current Player
+             		     width :: Int } -- ^ Width
          deriving (Read, Show)
 
 -- | Default board: 6x6, target is 3 in a row, no initial pieces
-initBoard = Board 19 5 [] False
+initBoard = Board 6 3 [] Nothing
 
 -- | Default world: initial board, black is current player.
-initWorld = World initBoard Nothing Black
+initWorld = World initBoard Nothing Black 0
 
 -- Play a move on the board; return 'Nothing' if the move is invalid
 -- (e.g. outside the range of the board, or there is a piece already there)

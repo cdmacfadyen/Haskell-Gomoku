@@ -5,12 +5,12 @@ import Graphics.Gloss
 import Board
 
 -- | Overall Draw Function.
-drawWorld :: World -> Picture
-drawWorld world = Pictures[drawBoard world, drawPieces world, highlight world (mousePos world)]
+drawWorld :: World -> Picture -> Picture -> Picture -> Picture
+drawWorld world background black_p white_p = Pictures[background, drawBoard world, drawPieces world black_p white_p, highlight world (mousePos world)]
 
 -- | Draws the board.
 drawBoard :: World -> Picture
-drawBoard world = Pictures[Color red . genGrid world . size $ board world]
+drawBoard world = Pictures[Color (greyN 0.6) . genGrid world . size $ board world]
 
 -- Generates the grid of size count for the given world, by calling horizontal and vertical, and then translating the resultant grid by negative half of the screen width on each axis.
 genGrid :: World -> Int -> Picture
@@ -26,19 +26,18 @@ horizontal gridsize count = [Line [(0 :: Float, gridsize * n), (gridsize * fromI
 vertical :: Float -> Int -> [Picture]
 vertical gridsize count = [Line [(gridsize * n, 0 :: Float), (gridsize * n, gridsize * fromIntegral count)] | n <- map fromIntegral [0..count] :: [Float]]
 
-drawPieces :: World -> Picture
-drawPieces w = Pictures [drawPiece w piece | piece <- pieces $ board w]
+drawPieces :: World -> Picture -> Picture -> Picture
+drawPieces world black_piece white_piece = Pictures [drawPiece world piece black_piece white_piece | piece <- pieces $ board world]
 
-drawPiece :: World -> (Position, Colour) -> Picture
-drawPiece world (position, colour) = Color (colourPiece colour) $ uncurry Translate (boardSpaceToScreenSpace world position) $ ThickCircle (squareSize world / 8) (squareSize world / 4)
+drawPiece :: World -> (Position, Colour) -> Picture -> Picture -> Picture
+drawPiece world (position, col) black_p white_p = uncurry Translate (boardSpaceToScreenSpace world position) $ Scale 0.18 0.18 (colour_piece col black_p white_p)
 
-colourPiece :: Colour -> Color
-colourPiece Black = black
-colourPiece White = white
+colour_piece :: Colour -> Picture -> Picture -> Picture
+colour_piece col black_p white_p = if col == Black then black_p else white_p
 
 highlight :: World-> Maybe Position -> Picture
 highlight w Nothing = Blank
 highlight w (Just p) = if contains p $ pieces $ board w then Blank else drawHighlight w p
 
 drawHighlight :: World -> Position -> Picture
-drawHighlight world position  = Color (makeColor 0.2 0.3 0.4 0.5) $ uncurry Translate (boardSpaceToScreenSpace world position) $ thickCircle (150 * 0.275) 7
+drawHighlight world position  = Color (greyN 0.2) $ uncurry Translate (boardSpaceToScreenSpace world position) $ thickCircle (squareSize world / 2) 9
