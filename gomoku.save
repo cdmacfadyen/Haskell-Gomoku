@@ -1,1 +1,1 @@
-World {board = Board {size = 6, target = 3, mousePos = Nothing, hint = Nothing, pieces = [((1,1),Black),((3,2),White),((2,1),Black)], won = Just Black}, turn = White, mouse = (426.0,65.0), width = 600}
+World {board = Board {size = 6, target = 3, mouse_board = Nothing, hint = Nothing, pieces = [((3,1),White),((2,0),Black),((3,0),White),((2,-1),Black)], won = Nothing}, turn = Black, mouse = (461.0,55.0), human = Black, computer = White, width = 600}
