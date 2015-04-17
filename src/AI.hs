@@ -53,7 +53,7 @@ infty :: Int
 infty = maxBound :: Int
 
 getbestmove :: Board -> Int -> Colour -> Position
-getbestmove board depth colour = getpos (alphabeta board colour depth infty (-infty) colour)
+getbestmove board depth colour = getpos (alphabeta board colour depth (-infty) infty colour)
     where getpos (pos, _) = pos
 
 alphabeta :: Board -> Colour -> Int -> Int -> Int -> Colour -> (Position, Int)
@@ -171,7 +171,7 @@ minimax_search depth colour maxPlayer (GameTree board game_turn moves)
 -- Makes an AI move, based on the best result from tree, and returns
 -- a maybe board if successful.
 move_ai :: World -> Board -> Colour -> Maybe Board
-move_ai world board colour = makeMove board colour (getbestmove board 20 (turn world))
+move_ai world board colour = makeMove board colour (getbestmove board 3 (turn world))
 
 -- AI world, resulting from an AI move.
 get_ai_world :: World -> World -- ^ New updated world.
