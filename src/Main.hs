@@ -17,15 +17,19 @@ main = do args <- getArgs
           background <- loadBMP "images/background.bmp"
           black_piece <- loadBMP "images/black.bmp"
           white_piece <- loadBMP "images/white.bmp"
+          undo_btn <- loadBMP "images/undo.bmp"
+          save_btn <- loadBMP "images/save.bmp"
+          undo_btn_h <- loadBMP "images/undo-highlight.bmp"
+          save_btn_h <- loadBMP "images/save-highlight.bmp"
           world <- if length args > 0
                       then loadGame $ args !! 0
                       else return $ initWorld 600
           -- Keeping draw and update world 'pure' functions which are then converted to IO equivalents only in this function, 
           -- since they don't do any IO actions themselves.
-          playIO (InWindow "Gomoku" (800, 800) (10, 10)) (greyN 0.3) 10
+          playIO (InWindow "Gomoku" (1100, 1100) (10, 10)) (greyN 0.3) 10
                  world
                  --(\x -> drawWorld x background)
-                 (return . (\x -> drawWorld x background black_piece white_piece)) -- Convert the world state to gloss state.
+                 (return . (\x -> drawWorld x background black_piece white_piece undo_btn save_btn undo_btn_h save_btn_h)) -- Convert the world state to gloss state.
                  -- | Called if there is an input event. If it is the
            	      --human player's turn, should update the board.
                  handleInput -- handleInput is an impure function since it saves/loads files.
