@@ -52,6 +52,12 @@ makeMove :: Board -> Colour -> Position -> Maybe Board
 makeMove b col p = if contains p $ pieces b then Nothing else Just newboard {won = checkWon newboard, hint = Nothing}
         where newboard = b {pieces = ((p, col) : (pieces b))}
 
+-- Given the same arguments as makeMove, return a new board if the move was successful, or the original board if it was not.
+maybeMakeMove :: Board -> Colour -> Position -> Board
+maybeMakeMove b col p = case makeMove b col p of
+                             Just board -> trace "made move" $ board
+                             Nothing    -> trace "failed to make move " $ b
+
 -- Checks if there is a piece of either colour at the given position
 contains :: Position -> [Piece] -> Bool
 contains position positions = (position, White) `elem` positions || (position, Black) `elem` positions
@@ -68,6 +74,10 @@ maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b)}
 -- Returns 'Just c' if the player 'c' has won
 checkWon :: Board -> Maybe Colour
 checkWon b = checkn b (target b) 
+
+-- Convenience function for getting the position of the given piece
+getPiecePos :: Piece -> Position
+getPiecePos (position, _) = position
 
 -- Given the list of pieces, a transform direction to check, a position of a piece to check, the target number in a row and a colour to check victory for, return Just colour if colour has won, or Nothing otherwise.
 checkTransformColour :: [Piece] -> Position -> Position -> Int -> Colour -> Maybe Colour

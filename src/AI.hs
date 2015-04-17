@@ -5,7 +5,7 @@ import Debug.Trace
 import Data.List
 import Data.Ord
 
-data GameTree = GameTree { game_board :: Board, -- ^ Board.
+{-data GameTree = GameTree { game_board :: Board, -- ^ Board.
                            game_turn :: Colour, -- ^ Player turn.
                            next_moves :: [(Position, GameTree)] } -- ^ List of (Position, Tree).
 
@@ -23,7 +23,7 @@ build_tree gen_fun board colour = let moves = gen_fun board colour in -- Generat
                Nothing -> make_states positions -- Not successful, no new state.
                -- Success, make the move and build the tree for the opposite player from here.
                Just board' -> (pos, build_tree gen_fun board' (switch colour)) : make_states positions
-
+-}
 -- List comprehension to examine all positions on the board and
 -- build a list of unused positions. Availability is checked by way
 -- of the 'contains' method.
@@ -41,33 +41,78 @@ get_possible_moves board colour = [ (x, y)
 -- It should traverse up to a certain depth, and pick the move
 -- which leads to the position with the best score for the player
 -- whose turn it is at the top of the tree.
-get_best_move :: Int -- ^ Maximum search depth.
+{--get_best_move :: Int -- ^ Maximum search depth.
                -> GameTree -- ^ Initial game tree.
                -> Position -- ^ Best position.
 get_best_move depth tree = trace (show (game_turn tree) ++ " : " ++ (show choice)) choice
           where get_position (_, pos) = pos
                 choice = get_position (alphabeta tree depth -1/0 1/0 (game_turn tree))
+--}
 
-alphabeta :: GameTree -> -- ^ The root of the game tree
+infty :: Int
+infty = maxBound :: Int
+
+getbestmove :: Board -> Int -> Colour -> Position
+getbestmove board depth colour = getpos (alphabeta board colour depth infty (-infty) colour)
+    where getpos (pos, _) = pos
+
+alphabeta :: Board -> Colour -> Int -> Int -> Int -> Colour -> (Position, Int)
+alphabeta board current_turn depth alpha beta maximising_colour = trace ("depth: " ++ show depth) $
+                                                                  if depth == 0 || null next_moves
+                                                                     then trace ("evaluated as " ++ show (evaluate board current_turn)) $ (previousmove, evaluate board current_turn)
+                                                                  else if current_turn == maximising_colour then
+                                                                          maximise board next_moves current_turn depth (previousmove, -infty) alpha beta maximising_colour
+                                                                       else minimise board next_moves current_turn depth (previousmove, infty) alpha beta maximising_colour
+    where next_moves   = trace (show (get_possible_moves board current_turn)) $ get_possible_moves board current_turn
+          previousmove = (0, 0)
+          --previousmove = getPiecePos (last (pieces board))
+
+maximise :: Board -> [Position] -> Colour -> Int -> (Position, Int) -> Int -> Int -> Colour -> (Position, Int)
+maximise board [] current_turn depth value alpha beta maximising_colour = trace "here" $ value
+maximise board (pos:poss) current_turn depth value alpha beta maximising_colour = trace ("maximising " ++ show (getval value)) $ 
+                                                                                  do let newvalue = if doalphabeta > (getval value)
+                                                                                                       then (pos, doalphabeta)
+                                                                                                       else value
+                                                                                     let newalpha = min alpha (getval newvalue)
+                                                                                     if beta <= newalpha
+                                                                                        then newvalue
+                                                                                        else maximise board poss current_turn depth newvalue newalpha beta maximising_colour
+    where doalphabeta = getval $ alphabeta (maybeMakeMove board current_turn pos) (switch current_turn) (depth - 1) alpha beta maximising_colour
+          getval (_, val) = val
+
+minimise :: Board -> [Position] -> Colour -> Int -> (Position, Int) -> Int -> Int -> Colour -> (Position, Int)
+minimise board [] current_turn depth value alpha beta maximising_colour = trace "ended" $ value
+minimise board (pos:poss) current_turn depth value alpha beta maximising_colour = trace ("minimising " ++ show (getval value)) $ 
+                                                                                  do let newvalue = if doalphabeta < getval value
+                                                                                                       then (pos, doalphabeta)
+                                                                                                       else value
+                                                                                     let newbeta = min beta (getval newvalue)
+                                                                                     if newbeta <= alpha
+                                                                                        then newvalue
+                                                                                        else minimise board poss current_turn depth newvalue alpha newbeta maximising_colour
+    where doalphabeta = getval $ alphabeta (maybeMakeMove board current_turn pos) (switch current_turn) (depth - 1) alpha beta maximising_colour
+          getval (_, val) = val
+
+{-alphabetaRecurse :: Board    -> -- ^ The current board state
              Int      -> -- ^ The (maximum) depth of the game tree to traverse
              Int      -> -- ^ The current alpha value
              Int      -> -- ^ The current beta value
              Colour   -> -- ^ The colour of the player to maximise for
-             (Int, Position)
-alphabeta tree depth alpha beta colour = if depth == 0 || length (next_moves tree) == 0
+             Position -- ^ The move for the AI to play.
+alphabetaRecurse tree depth alpha beta colour = if depth == 0 || length (next_moves tree) == 0
                                             then (evaluate (game_board tree) (game_turn tree), 
                                          else if colour == (game_turn tree) then
                                                  maximise (next_moves tree) depth -1/0 alpha beta colour
                                               else minimise (next_moves tree) depth 1/0 alpha beta colour
 
-maximise :: GameTree  ->
+maximise :: Board     ->
             Int       ->
             Int       ->
             Int       ->
             Colour    ->
-            (Int, Position)
+            Position
 
-maximise GameTree {next_moves=children} depth value alpha beta colour  = case children of 
+maximise board depth value alpha beta colour  = case children of 
                                     ((_, child):_) -> if beta <= alpha || null children
                                                          then (value, child)
                                                          else do let newValue = max value (alphabeta child (depth - 1) alpha beta colour)
@@ -75,12 +120,12 @@ maximise GameTree {next_moves=children} depth value alpha beta colour  = case ch
                                                                  maximise child depth alpha beta colour
                                     otherwise      -> value
 
-minimise :: GameTree  ->
+minimise :: Board     ->
             Int       ->
             Int       ->
             Int       ->
             Colour    ->
-            (Int, Position)
+            Position
 
 minimise GameTree {next_moves=children} depth value alpha beta colour  = case children of 
                                     ((_, child):_) -> if beta <= alpha || null children
@@ -89,6 +134,8 @@ minimise GameTree {next_moves=children} depth value alpha beta colour  = case ch
                                                                  let newAlpha = min alpha newValue
                                                                  minimise child depth alpha beta colour
                                     otherwise      -> value
+
+-}
 -- An evaluation function for a minimax search. Given a board and a colour
 -- return an integer indicating how good the board is for that colour.
 evaluate :: Board -> Colour -> Int
@@ -124,7 +171,7 @@ minimax_search depth colour maxPlayer (GameTree board game_turn moves)
 -- Makes an AI move, based on the best result from tree, and returns
 -- a maybe board if successful.
 move_ai :: World -> Board -> Colour -> Maybe Board
-move_ai world board colour = makeMove board colour (get_best_move 1 (build_tree get_possible_moves board (turn world)))
+move_ai world board colour = makeMove board colour (getbestmove board 20 (turn world))
 
 -- AI world, resulting from an AI move.
 get_ai_world :: World -> World -- ^ New updated world.

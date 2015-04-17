@@ -23,7 +23,7 @@ handleInput (EventKey (Char 'u') Down _ _) w = return $ undo 2 w -- Undo twice t
 handleInput (EventKey (Char 's') Down _ _) w = do saveGame "gomoku.save" w
                                                   return w
 handleInput (EventKey (Char 'h') Down _ _) w = return w {board = newboard}                                                
-	where newboard = (board w) {hint = Just (get_best_move 2 (build_tree get_possible_moves (board w) (turn w)))}
+	where newboard = (board w) {hint = Just (getbestmove (board w) 1 (turn w))}
 handleInput (EventKey (Char k) Down _ _) w = return $ trace ("Is there a win? " ++ show (won $ board w)) w
 handleInput (EventKey (Char k) Up _ _) w = return w
 handleInput e w = return w
