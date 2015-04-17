@@ -24,8 +24,12 @@ handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) w = case maybepos of
 									then 
 										do saveGame "gomoku.save" w
 										   return w
-									else return w
+									else 
+										if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+											then return w{board = new_board, turn = Black}
+											else return w
     where maybepos = mouse_board (board w)
+    	  new_board = (board w){pieces = []}
 
 handleInput (EventKey (Char 'u') Down _ _) w = return $ undo 2 w -- Undo twice to get back to player's move
 handleInput (EventKey (Char 's') Down _ _) w = do saveGame "gomoku.save" w
