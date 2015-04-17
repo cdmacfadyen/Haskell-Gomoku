@@ -29,7 +29,7 @@ type Piece = (Position, Colour)
 
 data Board = Board { size :: Int, -- ^ Board Size.
                      target :: Int, -- ^ Target 'in-a-row'
-                     mousePos :: Maybe Position,
+                     mouse_board :: Maybe Position,
                      hint :: Maybe Position,
                      pieces :: [Piece], -- ^ Position List.
                    	 won :: Maybe Colour } -- ^ Win Status.
@@ -38,6 +38,8 @@ data Board = Board { size :: Int, -- ^ Board Size.
 data World = World { board :: Board, -- ^ Board Representation
                      turn :: Colour,
                      mouse :: (Float,Float),
+                     human :: Colour,
+                     computer :: Colour,
              		 width :: Int } -- ^ Width
          deriving (Read, Show)
 
@@ -45,7 +47,7 @@ data World = World { board :: Board, -- ^ Board Representation
 initBoard = Board 6 3 Nothing Nothing [] Nothing
 
 -- | Default world: initial board, black is current player.
-initWorld = World initBoard Black (0,0)
+initWorld = World initBoard Black (0,0) White Black
 
 -- Play a move on the board; return 'Nothing' if the move is invalid
 -- (e.g. outside the range of the board, or there is a piece already there)

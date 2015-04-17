@@ -44,7 +44,7 @@ highlight :: World -> Picture
 highlight w = case mousep of 
 		           Just p  -> if contains p $ pieces $ board w then Blank else drawHighlight w p
 		           Nothing -> Blank
-    where mousep = mousePos (board w)
+    where mousep = mouse_board (board w)
 
 drawHighlight :: World -> Position -> Picture
 drawHighlight w p = Color (greyN 0.2) $ uncurry Translate (boardSpaceToScreenSpace w p) $ thickCircle (squareSize w / 2) 9
@@ -63,15 +63,6 @@ draw_save :: (Float,Float) -> Picture -> Picture -> Picture
 draw_save (x,y) save save_h = if (pointInBox (x,y) (380,74) (521,24))
 								then Translate 450 50 $ save_h
 								else Translate 450 50 $ save
-
---draw_undo_btn :: World -> Picture -> Picture -> Picture
---draw_undo_btn w undo_btn undo_btn-h = case mousep of
---										Just p -> pointInBox (mousePos (382,175) (522,125)) then Translate 450 150 $ undo_btn-h else Translate 450 150 $ undo_btn
---										Nothing -> Blank
---	where mousep = mousePos (board w)
-
---draw_save_btn :: World -> Picture -> Picture -> Picture
---draw_save_btn w save_btn save_btn-h= Translate  450 50 $ save_btn 
 
 
 

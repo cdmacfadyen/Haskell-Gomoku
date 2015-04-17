@@ -10,7 +10,7 @@ import Debug.Trace
 -- are given; when they happen, there is a trace printed on the console
 handleInput :: Event -> World -> IO World
 handleInput (EventMotion (x, y)) w = return w {mouse=(x,y),board = newboard}
-    where newboard = (board w) {mousePos = pos}
+    where newboard = (board w) {mouse_board = pos}
     	  pos = screenSpaceToBoardSpace w (x, y)
 
 -- Initiates check to see if placement is valid
@@ -25,7 +25,7 @@ handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) w = case maybepos of
 										do saveGame "gomoku.save" w
 										   return w
 									else return w
-    where maybepos = mousePos (board w)
+    where maybepos = mouse_board (board w)
 
 handleInput (EventKey (Char 'u') Down _ _) w = return $ undo 2 w -- Undo twice to get back to player's move
 handleInput (EventKey (Char 's') Down _ _) w = do saveGame "gomoku.save" w

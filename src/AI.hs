@@ -84,7 +84,7 @@ updateWorld :: Float -- ^ Time since last update.
             -> World -- ^ Current world state.
             -> World -- ^ New world state.
 updateWorld time world
-  | turn world == Black = world -- This is the users turn.
+  | turn world == (human world) = world -- This is the users turn.
   | otherwise       = case won (board world) of 
                       Nothing -> get_ai_world world
                       otherwise -> world
