@@ -29,8 +29,12 @@ handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) w = case maybepos of
 									then 
 										do saveGame "gomoku.save" w
 										   return w
-									else return w
+									else 
+										if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+											then return w{board = new_board, turn = Black}
+											else return w
     where maybepos = mouse_board (board w)
+    	  new_board = (board w){pieces = []}
 
 handleInput (EventKey (Char 'c') Down _ _) w = trace (countTotals w) $ return w
 handleInput (EventKey (Char 'e') Down _ _) w = trace (show $ evaluate (board w) (turn w)) $ return w

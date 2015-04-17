@@ -22,30 +22,31 @@ main = do args <- getArgs
           save_btn <- loadBMP "images/save.bmp"
           undo_btn_h <- loadBMP "images/undo-highlight.bmp"
           save_btn_h <- loadBMP "images/save-highlight.bmp"
+          restart_btn <- loadBMP "images/restart.bmp" 
+          restart_btn_h <- loadBMP "images/restart_h.bmp"
+          thinking <- loadBMP "images/thinking.bmp"
           
           world <- if length args == 4
-          			  then 
-          			  	if (isInfixOf ".save" (args !! 0))
-          			  		then loadGame $ args !! 0
-          			  		else return $ initialise_world args
+          			  then return $ initialise_world args
           			  else 
           			  	if (args !! 0) == "def"
           			  		then return $ default_world
-          			  		else error "usage: gomoku world_type board_size target_size which_colour\
-          			  				\\n\t\t world_type: string argument to indicate if new game, load game\
-          			  				\ or default settings [new || <name_of_load file> || def]\
-          			  				\\n\t\t board_size: allowed 2 <= size <= 19\
-          			  				\\n\t\t target_size: allowed 3 <= target <= 16\
-          			  				\\n\t\t which_colour: string arguments [Black || White]\
-          			  				\\n Please note that if you are using the default setting, do not pass\
-          			  				\ any other parameters, other than the string def."
+          			  		else 
+          			  			if (isInfixOf ".save" (args !! 0))
+          			  				then loadGame $ args !! 0
+	          			  			else 
+	          			  				if (args !! 0) == "usage"
+	          			  					then error print_usage
+	          			  					else error print_usage
 
           -- Keeping draw and update world 'pure' functions which are then converted to IO equivalents only in this function, 
           -- since they don't do any IO actions themselves.
           playIO (InWindow "Gomoku" (1100, 1100) (10, 10)) (greyN 0.3) 10
                  world
                  --(\x -> drawWorld x background)
-                 (return . (\x -> drawWorld x background black_piece white_piece undo_btn save_btn undo_btn_h save_btn_h)) -- Convert the world state to gloss state.
+                 (return . (\x -> drawWorld x background black_piece white_piece undo_btn 
+                 					save_btn undo_btn_h save_btn_h restart_btn restart_btn_h
+                 					thinking)) -- Convert the world state to gloss state.
                  -- | Called if there is an input event. If it is the
            	      --human player's turn, should update the board.
                  handleInput -- handleInput is an impure function since it saves/loads files.
@@ -88,4 +89,14 @@ get_colour_from_command :: String -> Colour
 get_colour_from_command command
 				| command == "Black" = Black
 				| command == "White" = White
-				|otherwise			 = error "Incorrect colour input, try again! [Black/White]"	 
+				|otherwise			 = error "Incorrect colour input, try again! [Black/White]"
+
+print_usage :: String
+print_usage = "usage: gomoku world_type board_size target_size which_colour\
+				\\n\t\t world_type: string argument to indicate if new game, load game\
+				\ or default settings [new || <name_of_load file> || def]\
+				\\n\t\t board_size: allowed 3 <= size <= 19\
+				\\n\t\t target_size: allowed 3 <= target <= 16\
+				\\n\t\t which_colour: string arguments [Black || White]\
+				\\n Please note that if you are using the default setting, do not pass\
+				\ any other parameters, other than the string def."
