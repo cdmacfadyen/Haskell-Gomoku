@@ -67,7 +67,7 @@ alphabeta board current_turn depth alpha beta maximising_colour = if depth == 0 
 
 maximise :: Board -> [Position] -> Colour -> Int -> (Position, Int) -> Int -> Int -> Colour -> (Position, Int)
 maximise board [] current_turn depth value alpha beta maximising_colour = value
-maximise board (pos:poss) current_turn depth value alpha beta maximising_colour = do let newvalue = if doalphabeta > (getval value)
+maximise board (pos:poss) current_turn depth value alpha beta maximising_colour = do let newvalue = if doalphabeta > getval value
                                                                                                        then (pos, doalphabeta)
                                                                                                        else value
                                                                                      let newalpha = min alpha (getval newvalue)
@@ -84,7 +84,7 @@ minimise board (pos:poss) current_turn depth value alpha beta maximising_colour 
                                                                                                        else value
                                                                                      let newbeta = min beta (getval newvalue)
                                                                                      if newbeta <= alpha
-                                                                                        then trace ("alpha cut-off ") $ newvalue
+                                                                                        then trace ("alpha cut-off ") newvalue
                                                                                         else minimise board poss current_turn depth newvalue alpha newbeta maximising_colour
     where doalphabeta = getval $ alphabeta (maybeMakeMove board current_turn pos) (switch current_turn) (depth - 1) alpha beta maximising_colour
           getval (_, val) = val
