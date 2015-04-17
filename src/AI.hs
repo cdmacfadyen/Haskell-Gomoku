@@ -167,7 +167,7 @@ minimax_search depth colour maxPlayer (GameTree board game_turn moves)
 -- Makes an AI move, based on the best result from tree, and returns
 -- a maybe board if successful.
 move_ai :: World -> Board -> Colour -> Maybe Board
-move_ai world board colour = makeMove board colour (getbestmove board 4 (turn world))
+move_ai world board colour = makeMove board colour (getbestmove board 2 (turn world))
 
 -- AI world, resulting from an AI move.
 get_ai_world :: World -> World -- ^ New updated world.
