@@ -72,7 +72,7 @@ draw_restart (x,y) restart restart_h = if (pointInBox (x,y) (380,(-25)) (521,(-7
 								else Translate 450 (-50) $ restart
 
 draw_ai :: World -> Picture -> Picture
-draw_ai world pict = if ((turn world) == (computer world))
+draw_ai world pict = if ((turn world) == (computer world)) && (won (board world)) /= Just (switch(turn world))
 						then pict
 						else Blank
 
