@@ -20,7 +20,7 @@ get_possible_moves board colour = [ (x, y)
 
 -- Generate a list of moves for the AI to consider for its next one. This can exclude some moves which the AI should not consider - for example ones far away from any current piece - in order to reduce the number of moves that have to be evaluated. Can also be ordered such that the moves at the start of the list are the ones most likely to be successful, as this will result in the AI being able to prune more effectively.
 get_considered_moves :: Board -> Colour -> [Position]
-get_considered_moves board colour = if null (pieces board) then [(0, 0)] else nub [doTrans pos trans | pos <- pieces board, trans <- (allTransforms ++ (map doubleTrans allTransforms)), unoccupied pos trans]
+get_considered_moves board colour = if null (pieces board) then [(0, 0)] else nub [doTrans pos trans | pos <- pieces board, trans <- (allTransforms ++ (map doubleTrans allTransforms)), unoccupied pos trans && validMove board (doTrans pos trans)]
     where doTrans pos trans = transform (getPiecePos pos) trans
           doubleTrans (t_x, t_y) = (2 * t_x, 2 * t_y)
           unoccupied pos trans = not (contains (doTrans pos trans) (pieces board))

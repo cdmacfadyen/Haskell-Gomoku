@@ -172,6 +172,9 @@ get_min board = if is_even board then -halfgridwidth else -halfgridwidth - 1
 get_max :: Board -> Int
 get_max board = (size board) `quot` 2
 
+validMove :: Board -> Position -> Bool
+validMove board (x, y) = x >= (get_min board) && y >= (get_min board) && x <= (get_max board) && y <= (get_max board)
+
 -- Undoes the supplied number of moves
 undo :: Int -> World -> World
 undo n w = foldr (.) id (replicate n undoOne) w
