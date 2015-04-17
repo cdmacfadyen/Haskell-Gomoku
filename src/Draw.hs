@@ -5,13 +5,14 @@ import Graphics.Gloss.Data.Point
 import Board
 
 -- | Overall Draw Function.
-drawWorld :: World -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture
-drawWorld world background black_p white_p undo save undo_h save_h restart restart_h = Pictures[background, drawBoard world, 
+drawWorld :: World -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture
+drawWorld world background black_p white_p undo save undo_h save_h restart restart_h thinking = Pictures[background, drawBoard world, 
 																			   drawPieces world black_p white_p, 
 																			   highlight world, draw_hint world,
 																			   draw_undo (mouse world) undo undo_h,
 																			   draw_save (mouse world) save save_h,
-																			   draw_restart (mouse world) restart restart_h]
+																			   draw_restart (mouse world) restart restart_h,
+																			   draw_ai world thinking]
 
 -- | Draws the board.
 drawBoard :: World -> Picture
@@ -70,5 +71,9 @@ draw_restart (x,y) restart restart_h = if (pointInBox (x,y) (380,(-25)) (521,(-7
 								then Translate 450 (-50) $ restart_h
 								else Translate 450 (-50) $ restart
 
+draw_ai :: World -> Picture -> Picture
+draw_ai world pict = if ((turn world) == (computer world))
+						then pict
+						else Blank
 
 

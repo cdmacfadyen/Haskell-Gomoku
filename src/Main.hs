@@ -24,6 +24,7 @@ main = do args <- getArgs
           save_btn_h <- loadBMP "images/save-highlight.bmp"
           restart_btn <- loadBMP "images/restart.bmp" 
           restart_btn_h <- loadBMP "images/restart_h.bmp"
+          thinking <- loadBMP "images/thinking.bmp"
           
           world <- if length args == 4
           			  then return $ initialise_world args
@@ -44,7 +45,8 @@ main = do args <- getArgs
                  world
                  --(\x -> drawWorld x background)
                  (return . (\x -> drawWorld x background black_piece white_piece undo_btn 
-                 					save_btn undo_btn_h save_btn_h restart_btn restart_btn_h)) -- Convert the world state to gloss state.
+                 					save_btn undo_btn_h save_btn_h restart_btn restart_btn_h
+                 					thinking)) -- Convert the world state to gloss state.
                  -- | Called if there is an input event. If it is the
            	      --human player's turn, should update the board.
                  handleInput -- handleInput is an impure function since it saves/loads files.
@@ -92,7 +94,7 @@ get_colour_from_command command
 print_usage :: String
 print_usage = "usage: gomoku world_type board_size target_size which_colour\
 				\\n\t\t world_type: string argument to indicate if new game, load game\
-				\ or default settings. [new || <name_of_load file> || def]\
+				\ or default settings [new || <name_of_load file> || def]\
 				\\n\t\t board_size: allowed 3 <= size <= 19\
 				\\n\t\t target_size: allowed 3 <= target <= 16\
 				\\n\t\t which_colour: string arguments [Black || White]\
