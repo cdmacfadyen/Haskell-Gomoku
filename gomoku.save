@@ -1,1 +1,0 @@
-World {board = Board {size = 6, target = 3, pieces = [], won = Nothing}, mousePos = Nothing, turn = Black, utility = 0.0, width = 600}

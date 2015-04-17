@@ -16,3 +16,4 @@ cabal.config
 *.swo
 
 *.DS_Store
+gomoku.save

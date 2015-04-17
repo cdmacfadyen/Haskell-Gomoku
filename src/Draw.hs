@@ -1,12 +1,16 @@
 module Draw(drawWorld) where
 
 import Graphics.Gloss
-
+import Graphics.Gloss.Data.Point
 import Board
 
 -- | Overall Draw Function.
-drawWorld :: World -> Picture -> Picture -> Picture -> Picture
-drawWorld world background black_p white_p = Pictures[background, drawBoard world, drawPieces world black_p white_p, highlight world, draw_hint world]
+drawWorld :: World -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture
+drawWorld world background black_p white_p undo save undo_h save_h = Pictures[background, drawBoard world, 
+																			   drawPieces world black_p white_p, 
+																			   highlight world, draw_hint world,
+																			   draw_undo (mouse world) undo undo_h,
+																			   draw_save (mouse world) save save_h]
 
 -- | Draws the board.
 drawBoard :: World -> Picture
@@ -40,7 +44,7 @@ highlight :: World -> Picture
 highlight w = case mousep of 
 		           Just p  -> if contains p $ pieces $ board w then Blank else drawHighlight w p
 		           Nothing -> Blank
-    where mousep = mousePos (board w)
+    where mousep = mouse_board (board w)
 
 drawHighlight :: World -> Position -> Picture
 drawHighlight w p = Color (greyN 0.2) $ uncurry Translate (boardSpaceToScreenSpace w p) $ thickCircle (squareSize w / 2) 9
@@ -49,6 +53,16 @@ draw_hint :: World -> Picture
 draw_hint w  = case (hint (board w)) of
 					Just pos -> Color red $ uncurry Translate (boardSpaceToScreenSpace w pos) $ thickCircle (squareSize w / 2) 9
 					Nothing  -> Blank
+
+draw_undo :: (Float,Float) -> Picture -> Picture -> Picture
+draw_undo (x,y) undo undo_h = if (pointInBox (x,y) (380,175) (521,125))
+								then Translate 450 150 $ undo_h
+								else Translate 450 150 $ undo
+
+draw_save :: (Float,Float) -> Picture -> Picture -> Picture
+draw_save (x,y) save save_h = if (pointInBox (x,y) (380,74) (521,24))
+								then Translate 450 50 $ save_h
+								else Translate 450 50 $ save
 
 
 
