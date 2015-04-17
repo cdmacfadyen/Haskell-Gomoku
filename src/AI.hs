@@ -57,20 +57,17 @@ getbestmove board depth colour = getpos (alphabeta board colour depth (-infty) i
     where getpos (pos, _) = pos
 
 alphabeta :: Board -> Colour -> Int -> Int -> Int -> Colour -> (Position, Int)
-alphabeta board current_turn depth alpha beta maximising_colour = trace ("depth: " ++ show depth) $
-                                                                  if depth == 0 || null next_moves
-                                                                     then trace ("evaluated as " ++ show (evaluate board current_turn)) $ (previousmove, evaluate board current_turn)
+alphabeta board current_turn depth alpha beta maximising_colour = if depth == 0 || null next_moves
+                                                                     then (previousmove, evaluate board current_turn)
                                                                   else if current_turn == maximising_colour then
                                                                           maximise board next_moves current_turn depth (previousmove, -infty) alpha beta maximising_colour
                                                                        else minimise board next_moves current_turn depth (previousmove, infty) alpha beta maximising_colour
-    where next_moves   = trace (show (get_possible_moves board current_turn)) $ get_possible_moves board current_turn
-          previousmove = (0, 0)
-          --previousmove = getPiecePos (last (pieces board))
+    where next_moves   = get_possible_moves board current_turn
+          previousmove = getPiecePos (last (pieces board))
 
 maximise :: Board -> [Position] -> Colour -> Int -> (Position, Int) -> Int -> Int -> Colour -> (Position, Int)
-maximise board [] current_turn depth value alpha beta maximising_colour = trace "here" $ value
-maximise board (pos:poss) current_turn depth value alpha beta maximising_colour = trace ("maximising " ++ show (getval value)) $ 
-                                                                                  do let newvalue = if doalphabeta > (getval value)
+maximise board [] current_turn depth value alpha beta maximising_colour = value
+maximise board (pos:poss) current_turn depth value alpha beta maximising_colour = do let newvalue = if doalphabeta > (getval value)
                                                                                                        then (pos, doalphabeta)
                                                                                                        else value
                                                                                      let newalpha = min alpha (getval newvalue)
@@ -81,9 +78,8 @@ maximise board (pos:poss) current_turn depth value alpha beta maximising_colour 
           getval (_, val) = val
 
 minimise :: Board -> [Position] -> Colour -> Int -> (Position, Int) -> Int -> Int -> Colour -> (Position, Int)
-minimise board [] current_turn depth value alpha beta maximising_colour = trace "ended" $ value
-minimise board (pos:poss) current_turn depth value alpha beta maximising_colour = trace ("minimising " ++ show (getval value)) $ 
-                                                                                  do let newvalue = if doalphabeta < getval value
+minimise board [] current_turn depth value alpha beta maximising_colour = value
+minimise board (pos:poss) current_turn depth value alpha beta maximising_colour = do let newvalue = if doalphabeta < getval value
                                                                                                        then (pos, doalphabeta)
                                                                                                        else value
                                                                                      let newbeta = min beta (getval newvalue)

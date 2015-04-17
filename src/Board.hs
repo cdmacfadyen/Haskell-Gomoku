@@ -55,8 +55,8 @@ makeMove b col p = if contains p $ pieces b then Nothing else Just newboard {won
 -- Given the same arguments as makeMove, return a new board if the move was successful, or the original board if it was not.
 maybeMakeMove :: Board -> Colour -> Position -> Board
 maybeMakeMove b col p = case makeMove b col p of
-                             Just board -> trace "made move" $ board
-                             Nothing    -> trace "failed to make move " $ b
+                             Just board -> board
+                             Nothing    -> b
 
 -- Checks if there is a piece of either colour at the given position
 contains :: Position -> [Piece] -> Bool
