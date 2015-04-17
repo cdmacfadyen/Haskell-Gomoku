@@ -122,10 +122,8 @@ checkn b targetN = msum [(checkTransformColour piecelist transform position targ
 countNConnected :: Board -> Int -> Colour -> Int
 countNConnected b targetN col = sum [checkTransformColourCount piecelist transform position targetN col
                                     |(position, colour) <- piecelist,
-                                     transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft],
-                                    onedge position transform && col == colour]
+                                     transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft]]
     where piecelist = pieces b
-          onedge (x, y) (x_diff, y_diff) = not (contains (x - x_diff, y - y_diff) piecelist)
 
 squareSize :: World -> Float
 squareSize w = fromIntegral (width w) / (fromIntegral . size $ board w)

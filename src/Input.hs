@@ -5,6 +5,11 @@ import Board
 import AI
 import Debug.Trace
 
+
+-- Debug aid
+countTotals :: World -> String
+countTotals w = show [countNConnected (board w) n (turn w) | n <- [2..6]]
+
 -- Update the world state given an input event. Some sample input events
 -- are given; when they happen, there is a trace printed on the console
 handleInput :: Event -> World -> IO World
@@ -19,6 +24,8 @@ handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) w = case maybepos of
     Nothing   -> return w
     where maybepos = mousePos (board w)
 
+handleInput (EventKey (Char 'c') Down _ _) w = trace (countTotals w) $ return w
+handleInput (EventKey (Char 'e') Down _ _) w = trace (show $ evaluate (board w) (turn w)) $ return w
 handleInput (EventKey (Char 'u') Down _ _) w = return $ undo 2 w -- Undo twice to get back to player's move
 handleInput (EventKey (Char 's') Down _ _) w = do saveGame "gomoku.save" w
                                                   return w

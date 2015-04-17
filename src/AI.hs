@@ -72,7 +72,7 @@ maximise board (pos:poss) current_turn depth value alpha beta maximising_colour 
                                                                                                        else value
                                                                                      let newalpha = min alpha (getval newvalue)
                                                                                      if beta <= newalpha
-                                                                                        then newvalue
+                                                                                        then trace ("beta cut-off") newvalue
                                                                                         else maximise board poss current_turn depth newvalue newalpha beta maximising_colour
     where doalphabeta = getval $ alphabeta (maybeMakeMove board current_turn pos) (switch current_turn) (depth - 1) alpha beta maximising_colour
           getval (_, val) = val
@@ -84,7 +84,7 @@ minimise board (pos:poss) current_turn depth value alpha beta maximising_colour 
                                                                                                        else value
                                                                                      let newbeta = min beta (getval newvalue)
                                                                                      if newbeta <= alpha
-                                                                                        then newvalue
+                                                                                        then trace ("alpha cut-off ") $ newvalue
                                                                                         else minimise board poss current_turn depth newvalue alpha newbeta maximising_colour
     where doalphabeta = getval $ alphabeta (maybeMakeMove board current_turn pos) (switch current_turn) (depth - 1) alpha beta maximising_colour
           getval (_, val) = val
@@ -135,8 +135,8 @@ minimise GameTree {next_moves=children} depth value alpha beta colour  = case ch
 -- An evaluation function for a minimax search. Given a board and a colour
 -- return an integer indicating how good the board is for that colour.
 evaluate :: Board -> Colour -> Int
-evaluate b col = sum [(countNConnected b n col) * (weight n)| n <- [(size b), (size b) - 1 .. 2]] +
-                 sum [(countNConnected b n (switch col)) * (-weight n)| n <- [(size b), (size b) - 1 .. 2]]
+evaluate b col = --sum [(countNConnected b n col) * (weight n)| n <- [(target b), (target b) - 1 .. 2]] -- +
+               sum [(countNConnected b n (switch col)) * (-weight n)| n <- [(target b), (target b) - 1 .. 2]]
   where weight n = 2 ^ n
 
 {-
@@ -167,7 +167,7 @@ minimax_search depth colour maxPlayer (GameTree board game_turn moves)
 -- Makes an AI move, based on the best result from tree, and returns
 -- a maybe board if successful.
 move_ai :: World -> Board -> Colour -> Maybe Board
-move_ai world board colour = makeMove board colour (getbestmove board 3 (turn world))
+move_ai world board colour = makeMove board colour (getbestmove board 4 (turn world))
 
 -- AI world, resulting from an AI move.
 get_ai_world :: World -> World -- ^ New updated world.
