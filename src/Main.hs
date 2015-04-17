@@ -8,7 +8,7 @@ import Graphics.Gloss
 import Board
 import Draw
 import Input
-import AI
+import AdvancedAI
 
 -- | Initialize the main IO loop.
 main :: IO ()		-- ^ IO State.
@@ -34,7 +34,7 @@ main = do args <- getArgs
           			  		else error "usage: gomoku world_type board_size target_size which_colour\
           			  				\\n\t\t world_type: string argument to indicate if new game, load game\
           			  				\ or default settings [new || <name_of_load file> || def]\
-          			  				\\n\t\t board_size: allowed 3 <= size <= 19\
+          			  				\\n\t\t board_size: allowed 2 <= size <= 19\
           			  				\\n\t\t target_size: allowed 3 <= target <= 16\
           			  				\\n\t\t which_colour: string arguments [Black || White]\
           			  				\\n Please note that if you are using the default setting, do not pass\
@@ -79,7 +79,7 @@ initialise_world args = World (initialise_board (read(args !! 1)::Int) (read(arg
 			where colour = get_colour_from_command (args !! 3)
 
 check_size :: Int -> Int
-check_size size = if 3 <= size && size <= 19 then size else error "Incorrect board size, try again [3-19]"
+check_size size = if 2 <= size && size <= 19 then size else error "Incorrect board size, try again [2-19]"
 
 check_target :: Int -> Int
 check_target target = if 3 <= target && target <= 6 then target else error "Incorrect target size, try again [3-6]"

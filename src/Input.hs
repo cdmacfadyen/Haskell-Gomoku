@@ -3,7 +3,7 @@ module Input(handleInput) where
 import Graphics.Gloss.Interface.IO.Game
 import Graphics.Gloss.Data.Point
 import Board
-import AI
+import AdvancedAI
 import Debug.Trace
 
 

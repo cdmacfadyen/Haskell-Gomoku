@@ -16,6 +16,14 @@ transformDownLeft = (-1, -1)
 transformLeft = (-1, 0)
 transformUpLeft = (-1, -1)
 
+-- Returns a list containing all of the transform directions.
+allTransforms :: [Position]
+allTransforms = [transformUp, transformUpRight, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft]
+
+-- Given a position and a transform, return the position modified by the transform
+transform :: Position -> Position -> Position
+transform (x, y) (x_diff, y_diff) = (x + x_diff, y + y_diff)
+
 -- | Switch current player.
 switch :: Colour -> Colour
 switch Black = White
@@ -110,7 +118,7 @@ colourFilter board colour = map fst $ filter (\(_, col) -> col == colour) (piece
 checkn :: Board -> Int -> Maybe Colour
 checkn b targetN = msum [(checkTransformColour piecelist transform position targetN colour)
                     | (position, colour) <- piecelist,
-                      transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft],
+                      transform <- allTransforms,
                       onedge position transform] -- Only check pieces that are on the edges of a row/column/diagonal at the top level, middle spaces will be checked by recursion from these, and this ensures you can't have more than targetN in a row.
     where piecelist = pieces b
           onedge (x, y) (x_diff, y_diff) = not (contains (x - x_diff, y - y_diff) piecelist)
@@ -119,7 +127,7 @@ checkn b targetN = msum [(checkTransformColour piecelist transform position targ
 countNConnected :: Board -> Int -> Colour -> Int
 countNConnected b targetN col = sum [checkTransformColourCount piecelist transform position targetN col
                                     |(position, colour) <- piecelist,
-                                     transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft]]
+                                     transform <- allTransforms]
     where piecelist = pieces b
 
 squareSize :: World -> Float

@@ -1,4 +1,4 @@
-module AI where
+module StupidAI where
 
 import Board
 
