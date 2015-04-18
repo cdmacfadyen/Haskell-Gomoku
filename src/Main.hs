@@ -25,6 +25,18 @@ main = do args <- getArgs
           restart_btn <- loadBMP "images/restart.bmp" 
           restart_btn_h <- loadBMP "images/restart_h.bmp"
           thinking <- loadBMP "images/thinking.bmp"
+
+          ai_difficulty <- loadBMP "images/in_game_settings/ai_difficulty.bmp"
+          black_button <- loadBMP "images/in_game_settings/black.bmp"
+          done <- loadBMP "images/in_game_settings/done.bmp"
+          grid_size <- loadBMP "images/in_game_settings/grid_size.bmp"
+          nineteen <- loadBMP "images/in_game_settings/nineteen.bmp"
+          six <- loadBMP "images/in_game_settings/six.bmp"
+          target_size <- loadBMP "images/in_game_settings/target_size.bmp"
+          three <- loadBMP "images/in_game_settings/three.bmp"
+          white_button <- loadBMP "images/in_game_settings/white.bmp"
+          colour_button <- loadBMP "images/in_game_settings/your_colour.bmp"
+
           
           world <- if length args == 4
           			  then return $ initialise_world args
@@ -37,7 +49,10 @@ main = do args <- getArgs
 	          			  			else 
 	          			  				if (args !! 0) == "usage"
 	          			  					then error print_usage
-	          			  					else error print_usage
+	          			  					else 
+	          			  						if (args !! 0) == "ingame"
+	          			  							then return $ default_world_ingame_sets
+	          			  							else error print_usage
 
           -- Keeping draw and update world 'pure' functions which are then converted to IO equivalents only in this function, 
           -- since they don't do any IO actions themselves.
@@ -46,7 +61,8 @@ main = do args <- getArgs
                  --(\x -> drawWorld x background)
                  (return . (\x -> drawWorld x background black_piece white_piece undo_btn 
                  					save_btn undo_btn_h save_btn_h restart_btn restart_btn_h
-                 					thinking)) -- Convert the world state to gloss state.
+                 					thinking ai_difficulty black_button done grid_size
+                 					nineteen six target_size three white_button colour_button)) -- Convert the world state to gloss state.
                  -- | Called if there is an input event. If it is the
            	      --human player's turn, should update the board.
                  handleInput -- handleInput is an impure function since it saves/loads files.
@@ -63,7 +79,14 @@ loadGame filename = do putStrLn $ "Loading game from file: " ++ show filename
 default_board = Board 6 3 Nothing Nothing [] Nothing
 
 -- | Default world: initial board, black is current player.
-default_world = World default_board Black (0,0) Black White 600
+default_world = World default_board Black (0,0) Black White (configure_settings(default_settings)) 600
+
+default_world_ingame_sets = World default_board Black (0,0) Black White default_settings 600
+
+default_settings = Settings 0 0 0 Black False
+
+configure_settings :: Settings -> Settings
+configure_settings settings = settings{configured=True}
 
 -- Initialise board from command line arguments.
 initialise_board :: Int -> Int -> Board
@@ -76,6 +99,7 @@ initialise_world args = World (initialise_board (read(args !! 1)::Int) (read(arg
 								(0,0) -- Initial mouse position default
 								(colour) -- Human player colour
 								(switch colour) -- Computer colour
+								default_settings -- settings configured in command line.
 								600 -- Width, hard-coded must not be changed ever.
 			where colour = get_colour_from_command (args !! 3)
 
@@ -94,7 +118,7 @@ get_colour_from_command command
 print_usage :: String
 print_usage = "usage: gomoku world_type board_size target_size which_colour\
 				\\n\t\t world_type: string argument to indicate if new game, load game\
-				\ or default settings [new || <name_of_load file> || def]\
+				\ default settings or settings in game [new || <name_of_load file> || def || ingame]\
 				\\n\t\t board_size: allowed 3 <= size <= 19\
 				\\n\t\t target_size: allowed 3 <= target <= 16\
 				\\n\t\t which_colour: string arguments [Black || White]\

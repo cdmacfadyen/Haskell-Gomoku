@@ -40,8 +40,17 @@ data World = World { board :: Board, -- ^ Board Representation
                      mouse :: (Float,Float),
                      human :: Colour,
                      computer :: Colour,
+                     settings :: Settings,
              		 width :: Int } -- ^ Width
          deriving (Read, Show)
+
+data Settings = Settings { grid_size :: Int, -- ^ Board Representation
+                     	   target_size :: Int,
+                     	   ai_difficulty :: Int,
+                     	   human_colour :: Colour,
+                     	   configured :: Bool} -- ^ Width
+         deriving (Read, Show)
+
 
 -- Play a move on the board; return 'Nothing' if the move is invalid
 -- (e.g. outside the range of the board, or there is a piece already there)

@@ -5,15 +5,21 @@ import Graphics.Gloss.Data.Point
 import Board
 
 -- | Overall Draw Function.
-drawWorld :: World -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture
-drawWorld world background black_p white_p undo save undo_h save_h restart restart_h thinking = Pictures[background, drawBoard world, 
+drawWorld :: World -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture
+drawWorld world background black_p white_p undo save undo_h save_h restart restart_h thinking ai_difficulty black done grid_size nineteen six target_size three white colour_button = Pictures[background, drawBoard world, 
 																			   drawPieces world black_p white_p, 
 																			   highlight world, draw_hint world,
 																			   draw_undo (mouse world) undo undo_h,
 																			   draw_save (mouse world) save save_h,
 																			   draw_restart (mouse world) restart restart_h,
-																			   draw_ai world thinking]
-
+																			   draw_ai_think world thinking, draw_grid_txt grid_size,
+																			   draw_target_txt target_size, draw_ai_txt ai_difficulty,
+																			   draw_your_colour colour_button, draw_size_three (mouse world) three,
+																			   draw_size_six (mouse world) six, draw_size_nineteen (mouse world) six,
+																			   draw_target_three (mouse world) three, draw_target_six (mouse world) six,
+																			   draw_ai_one (mouse world) three, draw_ai_two (mouse world) six,
+																			   draw_white_button (mouse world) white, draw_black_button(mouse world) black,
+																			   draw_done world (mouse world) done]
 -- | Draws the board.
 drawBoard :: World -> Picture
 drawBoard world = Pictures[Color (greyN 0.6) . genGrid world . size $ board world]
@@ -71,9 +77,72 @@ draw_restart (x,y) restart restart_h = if (pointInBox (x,y) (380,(-25)) (521,(-7
 								then Translate 450 (-50) $ restart_h
 								else Translate 450 (-50) $ restart
 
-draw_ai :: World -> Picture -> Picture
-draw_ai world pict = if ((turn world) == (computer world)) && (won (board world)) /= Just (switch(turn world))
+draw_ai_think :: World -> Picture -> Picture
+draw_ai_think world pict = if ((turn world) == (computer world)) && (won (board world)) /= Just (switch(turn world))
 						then pict
 						else Blank
 
+draw_grid_txt :: Picture -> Picture
+draw_grid_txt pict = Translate (-450) 200 $ pict
+
+draw_target_txt :: Picture -> Picture
+draw_target_txt pict = Translate (-450) 50 $ pict
+
+draw_ai_txt :: Picture -> Picture
+draw_ai_txt pict = Translate (-450) (-100) $ pict
+
+draw_your_colour :: Picture -> Picture
+draw_your_colour pict = Translate (-450) (-250) $ pict
+
+draw_size_three :: (Float,Float) -> Picture -> Picture
+draw_size_three (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+								then Translate (-500) 120 $ pict
+								else Translate (-500) 120 $ pict
+
+draw_size_six :: (Float,Float) -> Picture -> Picture
+draw_size_six (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+								then Translate (-450) 120 $ pict
+								else Translate (-450) 120 $ pict
+
+draw_size_nineteen :: (Float,Float) -> Picture -> Picture
+draw_size_nineteen (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+								then Translate (-400) 120 $ pict
+								else Translate (-400) 120 $ pict
+
+draw_target_three :: (Float,Float) -> Picture -> Picture
+draw_target_three  (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+								then Translate (-475) (-25) $ pict
+								else Translate (-475) (-25)$ pict
+
+draw_target_six :: (Float,Float) -> Picture -> Picture
+draw_target_six (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+								then Translate (-425) (-25) $ pict
+								else Translate (-425) (-25) $ pict
+
+draw_ai_one :: (Float,Float) -> Picture -> Picture
+draw_ai_one (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+								then Translate (-475) (-175) $ pict
+								else Translate (-475) (-175) $ pict
+
+draw_ai_two :: (Float,Float) -> Picture -> Picture
+draw_ai_two (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+								then Translate (-425) (-175) $ pict
+								else Translate (-425) (-175) $ pict
+
+draw_black_button :: (Float,Float) -> Picture -> Picture
+draw_black_button (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+								then Translate (-475) (-325) $ pict
+								else Translate (-475) (-325) $ pict
+
+draw_white_button :: (Float,Float) -> Picture -> Picture
+draw_white_button (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+								then Translate (-375) (-325) $ pict
+								else Translate (-375) (-325) $ pict
+
+draw_done :: World -> (Float,Float) -> Picture -> Picture
+draw_done w (x,y) pict = if (configured (settings w)) == True 
+							then if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+									then Translate (-450) 300 $ pict
+									else Translate (-450) 300 $ pict
+							else Blank 
 
