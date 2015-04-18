@@ -88,7 +88,7 @@ is_in_progress_game :: World -> Bool
 is_in_progress_game w = case (won (board w)) of
         Just Black -> False
         Just White -> False
-        Nothing -> True
+        Nothing -> if (configured (settings w)) == False then False else True
 
 -- Check whether the board is in a winning state for either player.
 -- Returns 'Nothing' if neither player has won yet

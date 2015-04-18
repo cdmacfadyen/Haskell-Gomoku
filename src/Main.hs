@@ -89,7 +89,7 @@ default_world = World default_board Black (0,0) Black White (configure_settings(
 
 default_world_ingame_sets = World default_board Black (0,0) Black White default_settings_in_game 600
 
-default_settings = Settings 0 0 0 Nothing False True
+default_settings = Settings 0 0 0 Nothing True True
 
 default_settings_in_game = Settings 0 0 0 Nothing False False
 

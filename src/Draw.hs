@@ -22,7 +22,7 @@ drawWorld world background black_p white_p undo save undo_h save_h restart resta
 																			   draw_target_txt world target_size, draw_ai_txt world ai_difficulty,
 																			   draw_your_colour world colour_button, check_done world (mouse world) done,
 																			   is_draw_settings world three six white black black_won white_won,
-																			   draw_winner world black_won white_won]
+																			   draw_winner world black_won white_won, draw_hints_btn (mouse world) undo undo_h]
 -- | Draws the board.
 drawBoard :: World -> Picture
 drawBoard world = Pictures[Color (greyN 0.6) . genGrid world . size $ board world]
@@ -67,7 +67,9 @@ drawHighlight w p = Color (greyN 0.2) $ uncurry Translate (boardSpaceToScreenSpa
 
 draw_hint :: World -> Picture
 draw_hint w  = case (hint (board w)) of
-					Just pos -> Color red $ uncurry Translate (boardSpaceToScreenSpace w pos) $ thickCircle (squareSize w / 2) 9
+					Just pos -> if (is_in_progress_game w)
+									then Color red $ uncurry Translate (boardSpaceToScreenSpace w pos) $ thickCircle (squareSize w / 2) 9
+									else trace (show "nope") Blank
 					Nothing  -> Blank
 
 draw_undo :: (Float,Float) -> Picture -> Picture -> Picture
@@ -85,8 +87,13 @@ draw_restart (x,y) restart restart_h = if (pointInBox (x,y) (380,(-25)) (521,(-7
 								then Translate 450 (-50) $ restart_h
 								else Translate 450 (-50) $ restart
 
+draw_hints_btn :: (Float,Float) -> Picture -> Picture -> Picture
+draw_hints_btn (x,y) hints hints_h = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+								then Translate 450 (-150) $ hints
+								else Translate 450 (-150) $ hints_h
+
 is_draw_settings :: World -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture
-is_draw_settings world three six white black black_won white_won = if (configured (settings world)) /= True
+is_draw_settings world three six white black black_won white_won = if (game_in_progress (settings world)) /= True
 																			then Pictures [draw_size_three (mouse world) three, draw_size_six (mouse world) six, 
 																			   draw_size_nineteen (mouse world) six,draw_target_three (mouse world) three, draw_target_six (mouse world) six,
 																			   draw_ai_one (mouse world) three, draw_ai_two (mouse world) six,

@@ -47,10 +47,14 @@ handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) w = case maybepos of
 																			else
 																				if (pointInBox (x,y) ((-496),(317)) ((-404),(281)))
 																					then return $ start_game w
-																					else return w 
+																					else
+																						if (pointInBox (x,y) ((382),(-126)) ((524),(-177)))
+																							then trace (show (x,y)) return w {board = newboard}
+																							else return w 
     where maybepos = mouse_board (board w)
     	  new_board = (board w){pieces = [], won = Nothing}
     	  new_settings = (settings w){game_in_progress=True}
+    	  newboard = (board w) {hint = Just (getbestmove (board w) 1 (turn w))}
 
 handleInput (EventKey (Char 'c') Down _ _) w = trace (countTotals w) $ return w
 handleInput (EventKey (Char 'e') Down _ _) w = trace (show $ evaluate (board w) (turn w)) $ return w
@@ -118,7 +122,7 @@ start_game :: World -> World
 start_game w = World (start_board w) Black (0,0) (human_choice) (switch human_choice) new_settings 600
 	where 
 		human_choice = fromJust (human_colour (settings w))
-		new_settings = (settings w){game_in_progress = True}
+		new_settings = (settings w){game_in_progress = True, configured = True}
 
 start_board :: World -> Board
 start_board w = (Board (grid_size (settings w)) (target_size (settings w)) Nothing Nothing [] Nothing)
