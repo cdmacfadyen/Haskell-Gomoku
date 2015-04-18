@@ -41,18 +41,21 @@ main = do args <- getArgs
           world <- if length args == 4
           			  then return $ initialise_world args
           			  else 
-          			  	if (args !! 0) == "def"
-          			  		then return $ default_world
-          			  		else 
-          			  			if (isInfixOf ".save" (args !! 0))
-          			  				then loadGame $ args !! 0
-	          			  			else 
-	          			  				if (args !! 0) == "usage"
-	          			  					then error print_usage
-	          			  					else 
-	          			  						if (args !! 0) == "ingame"
-	          			  							then return $ default_world_ingame_sets
-	          			  							else error print_usage
+          			  	if length args == 0
+                      then error print_usage
+                      else 
+                        if (args !! 0) == "def"
+              			  		then return $ default_world
+              			  		else 
+              			  			if (isInfixOf ".save" (args !! 0))
+              			  				then loadGame $ args !! 0
+    	          			  			else 
+    	          			  				if (args !! 0) == "usage"
+    	          			  					then error print_usage
+    	          			  					else 
+    	          			  						if (args !! 0) == "ingame"
+    	          			  							then return $ default_world_ingame_sets
+    	          			  							else error print_usage
 
           -- Keeping draw and update world 'pure' functions which are then converted to IO equivalents only in this function, 
           -- since they don't do any IO actions themselves.
@@ -116,11 +119,12 @@ get_colour_from_command command
 				|otherwise			 = error "Incorrect colour input, try again! [Black/White]"
 
 print_usage :: String
-print_usage = "usage: gomoku world_type board_size target_size which_colour\
+print_usage = "\n\nusage: gomoku world_type board_size target_size which_colour\
 				\\n\t\t world_type: string argument to indicate if new game, load game\
-				\ default settings or settings in game [new || <name_of_load file> || def || ingame]\
+				\\n default settings or settings in game\
+        \[new || <name_of_load file> || def || ingame]\
 				\\n\t\t board_size: allowed 3 <= size <= 19\
 				\\n\t\t target_size: allowed 3 <= target <= 16\
 				\\n\t\t which_colour: string arguments [Black || White]\
 				\\n Please note that if you are using the default setting, do not pass\
-				\ any other parameters, other than the string def."
+				\ any other parameters, other than the string def.\n\n"
