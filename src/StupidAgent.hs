@@ -1,6 +1,9 @@
 module StupidAI where
 
 import Board
+import Debug.Trace
+import Data.List
+import Data.Ord
 
 data GameTree = GameTree { game_board :: Board, -- ^ Board.
                            game_turn :: Colour, -- ^ Player turn.
@@ -41,23 +44,47 @@ get_possible_moves board colour = [ (x, y)
 get_best_move :: Int -- ^ Maximum search depth.
                -> GameTree -- ^ Initial game tree.
                -> Position -- ^ Best position.
-get_best_move depth tree = fst (head (next_moves tree))
+get_best_move depth tree = trace (show (game_turn tree) ++ " : " ++ (show choice)) choice
+          where get_position (pos,tree) = pos
+                choice = get_position $ heuristic depth (game_turn tree) (next_moves tree)
+
+heuristic :: Int -> Colour -> [(Position, GameTree)] -> (Position, GameTree)
+heuristic  depth _ [pos] = pos
+heuristic  depth colour ps = trace (show values ++ show (map fst ps)) choice
+   where values = map (minimax_search depth colour False . snd) ps
+         choice = fst $ maximumBy (\x y -> compare (snd x) (snd y)) $ zip ps $ map (minimax_search depth colour False . snd) ps
+
+
+minimax_search :: Int -> Colour -> Bool -> GameTree -> Int
+minimax_search depth colour maxPlayer (GameTree board _ []) = eval
+                        where eval = evaluate board colour
+minimax_search 0 colour maxPlayer (GameTree board _ _) = eval
+                        where eval = evaluate board colour
+minimax_search depth colour maxPlayer (GameTree board game_turn moves)
+       | checkWon board == Just colour = 100
+       | checkWon board == Just (switch colour) = -100
+       | maxPlayer     = maximum $ max
+       | otherwise     = minimum $ min
+          where nextTrees = map treeOf moves
+                treeOf (p,tree) = tree
+                max = (map (minimax_search (depth-1) colour False) nextTrees)
+                min = (map (minimax_search (depth-1) colour True) nextTrees)
 
 -- Makes an AI move, based on the best result from tree, and returns
 -- a maybe board if successful.
-move_ai :: Board -> Colour -> GameTree -> Maybe Board
-move_ai board colour tree = makeMove board colour (get_best_move 0 tree)
+move_ai :: World -> Board -> Colour -> Maybe Board
+move_ai world board colour = makeMove board colour (get_best_move 1 (build_tree get_possible_moves board (turn world)))
 
 -- AI world, resulting from an AI move.
-get_ai_world :: World -- ^ AI world.
-                -> GameTree -- ^ Tree
-                -> World -- ^ New updated world.
-get_ai_world world tree = maybeBoardToWorld world (move_ai (board world) (turn world) tree)
+get_ai_world :: World -> World -- ^ New updated world.
+get_ai_world world = maybeBoardToWorld world (move_ai world (board world) (turn world))
 
 -- Update the world state after some time has passed.
 updateWorld :: Float -- ^ Time since last update.
             -> World -- ^ Current world state.
             -> World -- ^ New world state.
 updateWorld time world
-	| turn world == Black = world -- This is the users turn.
-	| otherwise       = get_ai_world world (build_tree get_possible_moves (board world) (turn world))
+  | turn world == (human world) = world -- This is the users turn.
+  | otherwise       = case won (board world) of 
+                      Nothing -> get_ai_world world
+                      otherwise -> world
