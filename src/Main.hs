@@ -8,7 +8,7 @@ import Graphics.Gloss
 import Board
 import Draw
 import Input
-import AI
+import AdvancedAI
 
 -- | Initialize the main IO loop.
 main :: IO ()		-- ^ IO State.
@@ -104,7 +104,7 @@ initialise_world args = World (initialise_board (read(args !! 1)::Int) (read(arg
 			where colour = get_colour_from_command (args !! 3)
 
 check_size :: Int -> Int
-check_size size = if 3 <= size && size <= 19 then size else error "Incorrect board size, try again [3-19]"
+check_size size = if 2 <= size && size <= 19 then size else error "Incorrect board size, try again [2-19]"
 
 check_target :: Int -> Int
 check_target target = if 3 <= target && target <= 6 then target else error "Incorrect target size, try again [3-6]"

@@ -16,6 +16,14 @@ transformDownLeft = (-1, -1)
 transformLeft = (-1, 0)
 transformUpLeft = (-1, -1)
 
+-- Returns a list containing all of the transform directions.
+allTransforms :: [Position]
+allTransforms = [transformUp, transformUpRight, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft]
+
+-- Given a position and a transform, return the position modified by the transform
+transform :: Position -> Position -> Position
+transform (x, y) (x_diff, y_diff) = (x + x_diff, y + y_diff)
+
 -- | Switch current player.
 switch :: Colour -> Colour
 switch Black = White
@@ -58,6 +66,12 @@ makeMove :: Board -> Colour -> Position -> Maybe Board
 makeMove b col p = if contains p $ pieces b then Nothing else Just newboard {won = checkWon newboard, hint = Nothing}
         where newboard = b {pieces = ((p, col) : (pieces b))}
 
+-- Given the same arguments as makeMove, return a new board if the move was successful, or the original board if it was not.
+maybeMakeMove :: Board -> Colour -> Position -> Board
+maybeMakeMove b col p = case makeMove b col p of
+                             Just board -> board
+                             Nothing    -> b
+
 -- Checks if there is a piece of either colour at the given position
 contains :: Position -> [Piece] -> Bool
 contains position positions = (position, White) `elem` positions || (position, Black) `elem` positions
@@ -74,6 +88,10 @@ maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b)}
 -- Returns 'Just c' if the player 'c' has won
 checkWon :: Board -> Maybe Colour
 checkWon b = checkn b (target b) 
+
+-- Convenience function for getting the position of the given piece
+getPiecePos :: Piece -> Position
+getPiecePos (position, _) = position
 
 -- Given the list of pieces, a transform direction to check, a position of a piece to check, the target number in a row and a colour to check victory for, return Just colour if colour has won, or Nothing otherwise.
 checkTransformColour :: [Piece] -> Position -> Position -> Int -> Colour -> Maybe Colour
@@ -109,7 +127,7 @@ colourFilter board colour = map fst $ filter (\(_, col) -> col == colour) (piece
 checkn :: Board -> Int -> Maybe Colour
 checkn b targetN = msum [(checkTransformColour piecelist transform position targetN colour)
                     | (position, colour) <- piecelist,
-                      transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft],
+                      transform <- allTransforms,
                       onedge position transform] -- Only check pieces that are on the edges of a row/column/diagonal at the top level, middle spaces will be checked by recursion from these, and this ensures you can't have more than targetN in a row.
     where piecelist = pieces b
           onedge (x, y) (x_diff, y_diff) = not (contains (x - x_diff, y - y_diff) piecelist)
@@ -118,17 +136,8 @@ checkn b targetN = msum [(checkTransformColour piecelist transform position targ
 countNConnected :: Board -> Int -> Colour -> Int
 countNConnected b targetN col = sum [checkTransformColourCount piecelist transform position targetN col
                                     |(position, colour) <- piecelist,
-                                     transform <- [transformUp, transformUpLeft, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft],
-                                    onedge position transform && col == colour]
+                                     transform <- allTransforms]
     where piecelist = pieces b
-          onedge (x, y) (x_diff, y_diff) = not (contains (x - x_diff, y - y_diff) piecelist)
-
--- An evaluation function for a minimax search. Given a board and a colour
--- return an integer indicating how good the board is for that colour.
-evaluate :: Board -> Colour -> Int
-evaluate b col = sum [(countNConnected b n col) * (weight n)| n <- [(size b), (size b) - 1 .. 2]] +
-                 sum [(countNConnected b n (switch col)) * (-weight n)| n <- [(size b), (size b) - 1 .. 2]]
-  where weight n = 2 ^ n
 
 squareSize :: World -> Float
 squareSize w = fromIntegral (width w) / (fromIntegral . size $ board w)
@@ -171,6 +180,9 @@ get_min board = if is_even board then -halfgridwidth else -halfgridwidth - 1
 
 get_max :: Board -> Int
 get_max board = (size board) `quot` 2
+
+validMove :: Board -> Position -> Bool
+validMove board (x, y) = x >= (get_min board) && y >= (get_min board) && x <= (get_max board) && y <= (get_max board)
 
 -- Undoes the supplied number of moves
 undo :: Int -> World -> World
