@@ -5,8 +5,13 @@ import Graphics.Gloss.Data.Point
 import Board
 
 -- | Overall Draw Function.
-drawWorld :: World -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture
-drawWorld world background black_p white_p undo save undo_h save_h restart restart_h thinking ai_difficulty black done grid_size nineteen six target_size three white colour_button = Pictures[background, drawBoard world, 
+drawWorld :: World -> Picture -> Picture -> Picture -> Picture 
+			-> Picture -> Picture -> Picture -> Picture -> Picture 
+			-> Picture -> Picture -> Picture -> Picture -> Picture 
+			-> Picture -> Picture -> Picture -> Picture -> Picture 
+			-> Picture -> Picture -> Picture -> Picture
+drawWorld world background black_p white_p undo save undo_h save_h restart restart_h thinking ai_difficulty black done grid_size nineteen six target_size three white colour_button black_won white_won = 
+																			   Pictures[background, drawBoard world, 
 																			   drawPieces world black_p white_p, 
 																			   highlight world, draw_hint world,
 																			   draw_undo (mouse world) undo undo_h,
@@ -19,7 +24,7 @@ drawWorld world background black_p white_p undo save undo_h save_h restart resta
 																			   draw_target_three (mouse world) three, draw_target_six (mouse world) six,
 																			   draw_ai_one (mouse world) three, draw_ai_two (mouse world) six,
 																			   draw_white_button (mouse world) white, draw_black_button(mouse world) black,
-																			   draw_done world (mouse world) done]
+																			   check_done world (mouse world) done, draw_winner world black_won white_won]
 -- | Draws the board.
 drawBoard :: World -> Picture
 drawBoard world = Pictures[Color (greyN 0.6) . genGrid world . size $ board world]
@@ -50,7 +55,12 @@ colour_piece col black_p white_p = if col == Black then black_p else white_p
 
 highlight :: World -> Picture
 highlight w = case mousep of 
-		           Just p  -> if contains p $ pieces $ board w then Blank else drawHighlight w p
+		           Just p  -> if (game_in_progress (settings w)) == True 
+		           				then if contains p $ pieces $ board w 
+		           						then Blank 
+		           						else 
+		           							if (is_in_progress_game w) == True then drawHighlight w p else Blank
+		           				else Blank
 		           Nothing -> Blank
     where mousep = mouse_board (board w)
 
@@ -139,10 +149,24 @@ draw_white_button (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
 								then Translate (-375) (-325) $ pict
 								else Translate (-375) (-325) $ pict
 
-draw_done :: World -> (Float,Float) -> Picture -> Picture
-draw_done w (x,y) pict = if (configured (settings w)) == True 
-							then if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+check_done :: World -> (Float,Float) -> Picture -> Picture
+check_done w (x,y) pict = if (settings_complete (settings w))
+							then draw_done set (x,y) pict
+							else Blank
+				where set = (settings w){configured=True}
+
+draw_done :: Settings -> (Float,Float) -> Picture -> Picture
+draw_done set (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+							&& ((game_in_progress set) /= True)
+							then Translate (-450) 300 $ pict
+							else 
+								if ((game_in_progress set) /= True)
 									then Translate (-450) 300 $ pict
-									else Translate (-450) 300 $ pict
-							else Blank 
+									else Blank
+
+draw_winner :: World -> Picture -> Picture -> Picture
+draw_winner w black_won white_won = case (won (board w)) of
+			Just Black -> black_won
+			Just White -> white_won
+			Nothing -> Blank
 

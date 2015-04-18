@@ -49,14 +49,15 @@ data World = World { board :: Board, -- ^ Board Representation
                      human :: Colour,
                      computer :: Colour,
                      settings :: Settings,
-             		 width :: Int } -- ^ Width
+             		     width :: Int } -- ^ Width
          deriving (Read, Show)
 
 data Settings = Settings { grid_size :: Int, -- ^ Board Representation
                      	   target_size :: Int,
                      	   ai_difficulty :: Int,
-                     	   human_colour :: Colour,
-                     	   configured :: Bool} -- ^ Width
+                     	   human_colour :: Maybe Colour,
+                     	   configured :: Bool,
+                         game_in_progress :: Bool} -- ^ Width
          deriving (Read, Show)
 
 
@@ -80,8 +81,14 @@ contains position positions = (position, White) `elem` positions || (position, B
 -- Have to check if Maybe Board is Nothing or Board before returning World
 maybeBoardToWorld :: World -> Maybe Board -> World
 maybeBoardToWorld b Nothing = b
-maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b)}
+maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b), settings = new_settings}
+          where new_settings = (settings b){game_in_progress = (is_in_progress_game b)}
 
+is_in_progress_game :: World -> Bool
+is_in_progress_game w = case (won (board w)) of
+        Just Black -> False
+        Just White -> False
+        Nothing -> True
 
 -- Check whether the board is in a winning state for either player.
 -- Returns 'Nothing' if neither player has won yet
@@ -198,3 +205,11 @@ undoOne w = do let (newmoves, newturn) = if length currentmoves > 0
     where currentboard = board w
           currentturn  = turn w
           currentmoves = pieces currentboard
+
+settings_complete :: Settings -> Bool
+settings_complete s = if ((grid_size s) /= 0) && 
+                         ((target_size s) /= 0) && 
+                         ((ai_difficulty s) /= 0) && 
+                         ((human_colour s) /= Nothing) 
+                         then True
+                         else False

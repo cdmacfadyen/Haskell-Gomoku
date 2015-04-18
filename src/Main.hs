@@ -37,6 +37,9 @@ main = do args <- getArgs
           white_button <- loadBMP "images/in_game_settings/white.bmp"
           colour_button <- loadBMP "images/in_game_settings/your_colour.bmp"
 
+          black_won <- loadBMP "images/black_won.bmp"
+          white_won <- loadBMP "images/white_won.bmp"
+
           
           world <- if length args == 4
           			  then return $ initialise_world args
@@ -65,7 +68,7 @@ main = do args <- getArgs
                  (return . (\x -> drawWorld x background black_piece white_piece undo_btn 
                  					save_btn undo_btn_h save_btn_h restart_btn restart_btn_h
                  					thinking ai_difficulty black_button done grid_size
-                 					nineteen six target_size three white_button colour_button)) -- Convert the world state to gloss state.
+                 					nineteen six target_size three white_button colour_button black_won white_won)) -- Convert the world state to gloss state.
                  -- | Called if there is an input event. If it is the
            	      --human player's turn, should update the board.
                  handleInput -- handleInput is an impure function since it saves/loads files.
@@ -84,9 +87,11 @@ default_board = Board 6 3 Nothing Nothing [] Nothing
 -- | Default world: initial board, black is current player.
 default_world = World default_board Black (0,0) Black White (configure_settings(default_settings)) 600
 
-default_world_ingame_sets = World default_board Black (0,0) Black White default_settings 600
+default_world_ingame_sets = World default_board Black (0,0) Black White default_settings_in_game 600
 
-default_settings = Settings 0 0 0 Black False
+default_settings = Settings 0 0 0 Nothing False True
+
+default_settings_in_game = Settings 0 0 0 Nothing False False
 
 configure_settings :: Settings -> Settings
 configure_settings settings = settings{configured=True}
