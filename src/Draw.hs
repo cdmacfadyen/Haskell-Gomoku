@@ -3,6 +3,7 @@ module Draw(drawWorld) where
 import Graphics.Gloss
 import Graphics.Gloss.Data.Point
 import Board
+import Debug.Trace
 
 -- | Overall Draw Function.
 drawWorld :: World -> Picture -> Picture -> Picture -> Picture 
@@ -17,14 +18,11 @@ drawWorld world background black_p white_p undo save undo_h save_h restart resta
 																			   draw_undo (mouse world) undo undo_h,
 																			   draw_save (mouse world) save save_h,
 																			   draw_restart (mouse world) restart restart_h,
-																			   draw_ai_think world thinking, draw_grid_txt grid_size,
-																			   draw_target_txt target_size, draw_ai_txt ai_difficulty,
-																			   draw_your_colour colour_button, draw_size_three (mouse world) three,
-																			   draw_size_six (mouse world) six, draw_size_nineteen (mouse world) six,
-																			   draw_target_three (mouse world) three, draw_target_six (mouse world) six,
-																			   draw_ai_one (mouse world) three, draw_ai_two (mouse world) six,
-																			   draw_white_button (mouse world) white, draw_black_button(mouse world) black,
-																			   check_done world (mouse world) done, draw_winner world black_won white_won]
+																			   draw_ai_think world thinking, draw_grid_txt world grid_size,
+																			   draw_target_txt world target_size, draw_ai_txt world ai_difficulty,
+																			   draw_your_colour world colour_button, check_done world (mouse world) done,
+																			   is_draw_settings world three six white black black_won white_won,
+																			   draw_winner world black_won white_won]
 -- | Draws the board.
 drawBoard :: World -> Picture
 drawBoard world = Pictures[Color (greyN 0.6) . genGrid world . size $ board world]
@@ -87,22 +85,30 @@ draw_restart (x,y) restart restart_h = if (pointInBox (x,y) (380,(-25)) (521,(-7
 								then Translate 450 (-50) $ restart_h
 								else Translate 450 (-50) $ restart
 
+is_draw_settings :: World -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture
+is_draw_settings world three six white black black_won white_won = if (configured (settings world)) /= True
+																			then Pictures [draw_size_three (mouse world) three, draw_size_six (mouse world) six, 
+																			   draw_size_nineteen (mouse world) six,draw_target_three (mouse world) three, draw_target_six (mouse world) six,
+																			   draw_ai_one (mouse world) three, draw_ai_two (mouse world) six,
+																			   draw_white_button (mouse world) white, draw_black_button(mouse world) black]
+																			else Blank
+
 draw_ai_think :: World -> Picture -> Picture
 draw_ai_think world pict = if ((turn world) == (computer world)) && (won (board world)) /= Just (switch(turn world))
 						then pict
 						else Blank
 
-draw_grid_txt :: Picture -> Picture
-draw_grid_txt pict = Translate (-450) 200 $ pict
+draw_grid_txt :: World ->  Picture -> Picture
+draw_grid_txt w pict = if ((game_in_progress (settings w)) /= True) then Translate (-450) 200 $ pict else Blank
 
-draw_target_txt :: Picture -> Picture
-draw_target_txt pict = Translate (-450) 50 $ pict
+draw_target_txt :: World -> Picture -> Picture
+draw_target_txt w pict = if ((game_in_progress (settings w)) /= True) then Translate (-450) 50 $ pict else Blank
 
-draw_ai_txt :: Picture -> Picture
-draw_ai_txt pict = Translate (-450) (-100) $ pict
+draw_ai_txt :: World -> Picture -> Picture
+draw_ai_txt w pict = if ((game_in_progress (settings w)) /= True) then Translate (-450) (-100) $ pict else Blank
 
-draw_your_colour :: Picture -> Picture
-draw_your_colour pict = Translate (-450) (-250) $ pict
+draw_your_colour :: World -> Picture -> Picture
+draw_your_colour w pict = if ((game_in_progress (settings w)) /= True) then Translate (-450) (-250) $ pict else Blank
 
 draw_size_three :: (Float,Float) -> Picture -> Picture
 draw_size_three (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
