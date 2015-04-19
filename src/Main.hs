@@ -20,15 +20,16 @@ main = do args <- getArgs
           white_piece <- loadBMP "images/white.bmp"
           undo_btn <- loadBMP "images/undo.bmp"
           save_btn <- loadBMP "images/save.bmp"
-          undo_btn_h <- loadBMP "images/undo-highlight.bmp"
-          save_btn_h <- loadBMP "images/save-highlight.bmp"
+          undo_btn_h <- loadBMP "images/undo-h.bmp"
+          save_btn_h <- loadBMP "images/save-h.bmp"
           restart_btn <- loadBMP "images/restart.bmp" 
-          restart_btn_h <- loadBMP "images/restart_h.bmp"
+          restart_btn_h <- loadBMP "images/restart-h.bmp"
           thinking <- loadBMP "images/thinking.bmp"
 
           ai_difficulty <- loadBMP "images/in_game_settings/ai_difficulty.bmp"
           black_button <- loadBMP "images/in_game_settings/black.bmp"
           done <- loadBMP "images/in_game_settings/done.bmp"
+          done_h <- loadBMP "images/done-h.bmp"
           grid_size <- loadBMP "images/in_game_settings/grid_size.bmp"
           nineteen <- loadBMP "images/in_game_settings/nineteen.bmp"
           six <- loadBMP "images/in_game_settings/six.bmp"
@@ -39,7 +40,22 @@ main = do args <- getArgs
 
           black_won <- loadBMP "images/black_won.bmp"
           white_won <- loadBMP "images/white_won.bmp"
+          hint_button <- loadBMP "images/hint.bmp"
+          hint_button_h <- loadBMP "images/hint-h.bmp"
 
+          black_h <- loadBMP "images/in_game_settings/black-h.bmp"
+          white_h <- loadBMP "images/in_game_settings/white-h.bmp"
+          three_h <- loadBMP "images/in_game_settings/three-h.bmp"
+          six_h <- loadBMP "images/in_game_settings/six-h.bmp"
+          nineteen2 <- loadBMP "images/in_game_settings/nineteen.bmp"
+          nineteen_h <- loadBMP "images/in_game_settings/nineteen-h.bmp"
+          easy <- loadBMP "images/in_game_settings/easy.bmp"
+          easy_h <- loadBMP "images/in_game_settings/easy-h.bmp"
+          hard <- loadBMP "images/in_game_settings/hard.bmp"
+          hard_h <- loadBMP "images/in_game_settings/hard-h.bmp"
+
+          med <- loadBMP "images/in_game_settings/med.bmp"
+          med_h <- loadBMP "images/in_game_settings/med-h.bmp"
           
           world <- if length args == 4
           			  then return $ initialise_world args
@@ -62,13 +78,15 @@ main = do args <- getArgs
 
           -- Keeping draw and update world 'pure' functions which are then converted to IO equivalents only in this function, 
           -- since they don't do any IO actions themselves.
-          playIO (InWindow "Gomoku" (1100, 1100) (10, 10)) (greyN 0.3) 10
+          playIO (InWindow "Gomoku" (1200, 750) (10, 10)) (greyN 0.3) 10
                  world
                  --(\x -> drawWorld x background)
                  (return . (\x -> drawWorld x background black_piece white_piece undo_btn 
                  					save_btn undo_btn_h save_btn_h restart_btn restart_btn_h
                  					thinking ai_difficulty black_button done grid_size
-                 					nineteen six target_size three white_button colour_button black_won white_won)) -- Convert the world state to gloss state.
+                 					nineteen six target_size three white_button colour_button black_won white_won hint_button
+                          hint_button_h done_h black_h white_h three_h six_h nineteen2 nineteen_h easy easy_h hard 
+                          hard_h med med_h)) -- Convert the world state to gloss state.
                  -- | Called if there is an input event. If it is the
            	      --human player's turn, should update the board.
                  handleInput -- handleInput is an impure function since it saves/loads files.

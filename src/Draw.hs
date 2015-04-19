@@ -10,8 +10,11 @@ drawWorld :: World -> Picture -> Picture -> Picture -> Picture
 			-> Picture -> Picture -> Picture -> Picture -> Picture 
 			-> Picture -> Picture -> Picture -> Picture -> Picture 
 			-> Picture -> Picture -> Picture -> Picture -> Picture 
+			-> Picture -> Picture -> Picture -> Picture -> Picture
+			-> Picture -> Picture -> Picture -> Picture -> Picture 
+			-> Picture -> Picture -> Picture -> Picture -> Picture 
 			-> Picture -> Picture -> Picture -> Picture
-drawWorld world background black_p white_p undo save undo_h save_h restart restart_h thinking ai_difficulty black done grid_size nineteen six target_size three white colour_button black_won white_won = 
+drawWorld world background black_p white_p undo save undo_h save_h restart restart_h thinking ai_difficulty black done grid_size nineteen six target_size three white colour_button black_won white_won hint_button hint_h done_h black_h white_h three_h six_h nineteen2 nineteen_h easy easy_h hard hard_h med med_h = 
 																			   Pictures[background, drawBoard world, 
 																			   drawPieces world black_p white_p, 
 																			   highlight world, draw_hint world,
@@ -20,9 +23,10 @@ drawWorld world background black_p white_p undo save undo_h save_h restart resta
 																			   draw_restart (mouse world) restart restart_h,
 																			   draw_ai_think world thinking, draw_grid_txt world grid_size,
 																			   draw_target_txt world target_size, draw_ai_txt world ai_difficulty,
-																			   draw_your_colour world colour_button, check_done world (mouse world) done,
-																			   is_draw_settings world three six white black black_won white_won,
-																			   draw_winner world black_won white_won, draw_hints_btn (mouse world) undo undo_h]
+																			   draw_your_colour world colour_button, check_done world (mouse world) done done_h,
+																			   is_draw_settings world three six nineteen2 white black black_won white_won easy easy_h 
+																			   hard hard_h med med_h three_h six_h nineteen_h white_h black_h, draw_winner world black_won white_won, 
+																			   draw_hints_btn (mouse world) hint_button hint_h]
 -- | Draws the board.
 drawBoard :: World -> Picture
 drawBoard world = Pictures[Color (greyN 0.6) . genGrid world . size $ board world]
@@ -63,7 +67,7 @@ highlight w = case mousep of
     where mousep = mouse_board (board w)
 
 drawHighlight :: World -> Position -> Picture
-drawHighlight w p = Color (greyN 0.2) $ uncurry Translate (boardSpaceToScreenSpace w p) $ thickCircle (squareSize w / 2) 9
+drawHighlight w p = Color (greyN 0.25) $ uncurry Translate (boardSpaceToScreenSpace w p) $ thickCircle (squareSize w / 2) 10
 
 draw_hint :: World -> Picture
 draw_hint w  = case (hint (board w)) of
@@ -73,31 +77,31 @@ draw_hint w  = case (hint (board w)) of
 					Nothing  -> Blank
 
 draw_undo :: (Float,Float) -> Picture -> Picture -> Picture
-draw_undo (x,y) undo undo_h = if (pointInBox (x,y) (380,175) (521,125))
-								then Translate 450 150 $ undo_h
-								else Translate 450 150 $ undo
+draw_undo (x,y) undo undo_h = if (pointInBox (x,y) (384,180) (596,119))
+								then Translate 475 150 $ undo_h
+								else Translate 475 150 $ undo
 
 draw_save :: (Float,Float) -> Picture -> Picture -> Picture
-draw_save (x,y) save save_h = if (pointInBox (x,y) (380,74) (521,24))
-								then Translate 450 50 $ save_h
-								else Translate 450 50 $ save
+draw_save (x,y) save save_h = if (pointInBox (x,y) (381,80) (565,18))
+								then Translate 475 50 $ save_h
+								else Translate 475 50 $ save
 
 draw_restart :: (Float,Float) -> Picture -> Picture -> Picture
-draw_restart (x,y) restart restart_h = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
-								then Translate 450 (-50) $ restart_h
-								else Translate 450 (-50) $ restart
+draw_restart (x,y) restart restart_h = if (pointInBox (x,y) (384,(-20)) (566,(-81)))
+								then Translate 475 (-50) $ restart_h
+								else Translate 475 (-50) $ restart
 
 draw_hints_btn :: (Float,Float) -> Picture -> Picture -> Picture
-draw_hints_btn (x,y) hints hints_h = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
-								then Translate 450 (-150) $ hints
-								else Translate 450 (-150) $ hints_h
+draw_hints_btn (x,y) hints hints_h = if (pointInBox (x,y) ((382),(-122)) ((567),(-178)))
+								then Translate 475 (-150) $ hints_h
+								else Translate 475 (-150) $ hints
 
-is_draw_settings :: World -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture
-is_draw_settings world three six white black black_won white_won = if (game_in_progress (settings world)) /= True
-																			then Pictures [draw_size_three (mouse world) three, draw_size_six (mouse world) six, 
-																			   draw_size_nineteen (mouse world) six,draw_target_three (mouse world) three, draw_target_six (mouse world) six,
-																			   draw_ai_one (mouse world) three, draw_ai_two (mouse world) six,
-																			   draw_white_button (mouse world) white, draw_black_button(mouse world) black]
+is_draw_settings :: World -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture
+is_draw_settings world three six nineteen white black black_won white_won easy easy_h hard hard_h med med_h three_h six_h nineteen_h white_h black_h = if (game_in_progress (settings world)) /= True
+																			then Pictures [draw_size_three (mouse world) three three_h , draw_size_six (mouse world) six six_h, 
+																			   draw_size_nineteen (mouse world) nineteen nineteen_h, draw_target_three (mouse world) three three_h, draw_target_six (mouse world) six six_h,
+																			   draw_ai_one (mouse world) easy easy_h, draw_ai_two (mouse world) med med_h, draw_ai_three (mouse world) hard hard_h,
+																			   draw_white_button (mouse world) white white_h, draw_black_button(mouse world) black black_h]
 																			else Blank
 
 draw_ai_think :: World -> Picture -> Picture
@@ -106,75 +110,80 @@ draw_ai_think world pict = if ((turn world) == (computer world)) && (won (board 
 						else Blank
 
 draw_grid_txt :: World ->  Picture -> Picture
-draw_grid_txt w pict = if ((game_in_progress (settings w)) /= True) then Translate (-450) 200 $ pict else Blank
+draw_grid_txt w pict = if ((game_in_progress (settings w)) /= True) then Translate (-470) 200 $ pict else Blank
 
 draw_target_txt :: World -> Picture -> Picture
-draw_target_txt w pict = if ((game_in_progress (settings w)) /= True) then Translate (-450) 50 $ pict else Blank
+draw_target_txt w pict = if ((game_in_progress (settings w)) /= True) then Translate (-470) 50 $ pict else Blank
 
 draw_ai_txt :: World -> Picture -> Picture
-draw_ai_txt w pict = if ((game_in_progress (settings w)) /= True) then Translate (-450) (-100) $ pict else Blank
+draw_ai_txt w pict = if ((game_in_progress (settings w)) /= True) then Translate (-470) (-100) $ pict else Blank
 
 draw_your_colour :: World -> Picture -> Picture
-draw_your_colour w pict = if ((game_in_progress (settings w)) /= True) then Translate (-450) (-250) $ pict else Blank
+draw_your_colour w pict = if ((game_in_progress (settings w)) /= True) then Translate (-470) (-250) $ pict else Blank
 
-draw_size_three :: (Float,Float) -> Picture -> Picture
-draw_size_three (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
-								then Translate (-500) 120 $ pict
-								else Translate (-500) 120 $ pict
+draw_size_three :: (Float,Float) -> Picture -> Picture -> Picture
+draw_size_three (x,y) pict pict_h = if (pointInBox (x,y) ((-539),137) ((-501),(101)))
+								then Translate (-520) 120 $ pict_h
+								else Translate (-520) 120 $ pict
 
-draw_size_six :: (Float,Float) -> Picture -> Picture
-draw_size_six (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
-								then Translate (-450) 120 $ pict
-								else Translate (-450) 120 $ pict
+draw_size_six :: (Float,Float) -> Picture -> Picture -> Picture
+draw_size_six (x,y) pict pict_h = if (pointInBox (x,y) ((-487),136) ((-449),(101)))
+								then Translate (-470) 120 $ pict_h
+								else Translate (-470) 120 $ pict
 
-draw_size_nineteen :: (Float,Float) -> Picture -> Picture
-draw_size_nineteen (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
-								then Translate (-400) 120 $ pict
-								else Translate (-400) 120 $ pict
+draw_size_nineteen :: (Float,Float) -> Picture -> Picture -> Picture
+draw_size_nineteen (x,y) pict pict_h = if (pointInBox (x,y) ((-439),138) ((-397),(99)))
+								then Translate (-420) 120 $ pict_h
+								else Translate (-420) 120 $ pict
 
-draw_target_three :: (Float,Float) -> Picture -> Picture
-draw_target_three  (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
-								then Translate (-475) (-25) $ pict
-								else Translate (-475) (-25)$ pict
+draw_target_three :: (Float,Float) -> Picture -> Picture -> Picture
+draw_target_three  (x,y) pict pict_h = if (pointInBox (x,y) ((-513),(-10)) ((-475),(-42)))
+								then Translate (-495) (-25) $ pict_h
+								else Translate (-495) (-25)$ pict
 
-draw_target_six :: (Float,Float) -> Picture -> Picture
-draw_target_six (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
-								then Translate (-425) (-25) $ pict
-								else Translate (-425) (-25) $ pict
+draw_target_six :: (Float,Float) -> Picture -> Picture -> Picture
+draw_target_six (x,y) pict pict_h = if (pointInBox (x,y) ((-466),(-10)) ((-425),(-43)))
+								then Translate (-445) (-25) $ pict_h
+								else Translate (-445) (-25) $ pict
 
-draw_ai_one :: (Float,Float) -> Picture -> Picture
-draw_ai_one (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
-								then Translate (-475) (-175) $ pict
-								else Translate (-475) (-175) $ pict
+draw_ai_one :: (Float,Float) -> Picture -> Picture -> Picture
+draw_ai_one (x,y) pict pict_h = if (pointInBox (x,y) ((-569),(-158)) ((-509),(-194)))
+								then Translate (-540) (-175) $ pict_h
+								else Translate (-540) (-175) $ pict
 
-draw_ai_two :: (Float,Float) -> Picture -> Picture
-draw_ai_two (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
-								then Translate (-425) (-175) $ pict
-								else Translate (-425) (-175) $ pict
+draw_ai_two :: (Float,Float) -> Picture -> Picture -> Picture
+draw_ai_two (x,y) pict pict_h = if (pointInBox (x,y) ((-498),(-159)) ((-442),(-192)))
+								then Translate (-470) (-175) $ pict_h
+								else Translate (-470) (-175) $ pict
 
-draw_black_button :: (Float,Float) -> Picture -> Picture
-draw_black_button (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
-								then Translate (-475) (-325) $ pict
-								else Translate (-475) (-325) $ pict
+draw_ai_three :: (Float,Float) -> Picture -> Picture -> Picture
+draw_ai_three (x,y) pict pict_h = if (pointInBox (x,y) ((-429),(-161)) ((-370),(-193)))
+								then Translate (-400) (-175) $ pict_h
+								else Translate (-400) (-175) $ pict
 
-draw_white_button :: (Float,Float) -> Picture -> Picture
-draw_white_button (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
-								then Translate (-375) (-325) $ pict
-								else Translate (-375) (-325) $ pict
+draw_black_button :: (Float,Float) -> Picture -> Picture -> Picture
+draw_black_button (x,y) pict pict_h = if (pointInBox (x,y) ((-514),(-310)) ((-475),(-345)))
+								then Translate (-495) (-325) $ pict_h
+								else Translate (-495) (-325) $ pict
 
-check_done :: World -> (Float,Float) -> Picture -> Picture
-check_done w (x,y) pict = if (settings_complete (settings w))
-							then draw_done set (x,y) pict
+draw_white_button :: (Float,Float) -> Picture -> Picture -> Picture
+draw_white_button (x,y) pict pict_h = if (pointInBox (x,y) ((-465),(-309)) ((-424),(-344)))
+								then Translate (-445) (-325) $ pict_h
+								else Translate (-445) (-325) $ pict
+
+check_done :: World -> (Float,Float) -> Picture -> Picture -> Picture
+check_done w (x,y) pict pict_h = if (settings_complete (settings w))
+							then draw_done set (x,y) pict pict_h
 							else Blank
 				where set = (settings w){configured=True}
 
-draw_done :: Settings -> (Float,Float) -> Picture -> Picture
-draw_done set (x,y) pict = if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+draw_done :: Settings -> (Float,Float) -> Picture -> Picture -> Picture
+draw_done set (x,y) pict pict_h = if (pointInBox (x,y) ((-560),(331)) ((-383),(270)))
 							&& ((game_in_progress set) /= True)
-							then Translate (-450) 300 $ pict
+							then Translate (-470) 300 $ pict_h
 							else 
 								if ((game_in_progress set) /= True)
-									then Translate (-450) 300 $ pict
+									then Translate (-470) 300 $ pict
 									else Blank
 
 draw_winner :: World -> Picture -> Picture -> Picture

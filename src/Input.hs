@@ -22,37 +22,37 @@ handleInput (EventMotion (x, y)) w = return w {mouse=(x,y),board = newboard}
 -- Passes in point that's closest to a valid placement coord
 handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) w = case maybepos of
     Just pos  -> if (is_in_progress_game w) == True then return $ maybeBoardToWorld w $ makeMove (board w) (turn w) pos else return w
-    Nothing   -> if (pointInBox (x,y) (380,175) (521,125))
+    Nothing   -> if trace (show (x,y)) (pointInBox (x,y) (384,180) (596,119))
 							then return $ undo 2 w
 							else
-								if (pointInBox (x,y) (380,74) (521,24))
+								if trace (show (x,y)) (pointInBox (x,y) (381,80) (565,18))
 									then 
 										do saveGame "gomoku.save" w
 										   return w
 									else 
-										if (pointInBox (x,y) (380,(-25)) (521,(-75)))
+										if trace (show (x,y)) (pointInBox (x,y) (384,(-20)) (566,(-81)))
 											then return w{board = new_board, turn = Black, settings = new_settings}
 											else
-												if (pointInBox (x,y) ((-520),133) ((-378),(106))) 
+												if trace (show (x,y)) (pointInBox (x,y) ((-539),137) ((-397),(99))) 
 													then return $ handle_grid_size (x,y) w 
 													else
-														if (pointInBox (x,y) ((-495),(-13)) ((-402),(-43)))
+														if trace (show (x,y)) (pointInBox (x,y) ((-513),(-10)) ((-425),(-43)))
 															then return $ handle_target_size (x,y) w 
 															else
-																if (pointInBox (x,y) ((-495),(-163)) ((-402),(-192)))
+																if trace (show (x,y)) (pointInBox (x,y) ((-569),(-158)) ((-370),(-193)))
 																	then return $ handle_ai_difficulty (x,y) w
 																	else
-																		if (pointInBox (x,y) ((-520),(-316)) ((-375),(-345)))
+																		if trace (show (x,y)) (pointInBox (x,y) ((-514),(-310)) ((-424),(-344)))
 																			then return $ handle_your_colour (x,y) w
 																			else
-																				if (pointInBox (x,y) ((-496),(317)) ((-404),(281)))
+																				if trace (show (x,y)) (pointInBox (x,y) ((-560),(331)) ((-383),(270)))
 																					then return $ start_game w
 																					else
-																						if (pointInBox (x,y) ((382),(-126)) ((524),(-177)))
+																						if trace (show (x,y)) (pointInBox (x,y) ((382),(-122)) ((567),(-178)))
 																							then trace (show (x,y)) return w {board = newboard}
-																							else return w 
+																							else trace (show (x,y)) return w 
     where maybepos = mouse_board (board w)
-    	  new_board = (board w){pieces = [], won = Nothing}
+    	  new_board = (board w){pieces = [], won = Nothing, hint = Nothing}
     	  new_settings = (settings w){game_in_progress=True}
     	  newboard = (board w) {hint = Just (getbestmove (board w) 1 (turn w))}
 
@@ -72,13 +72,13 @@ saveGame filename w = do putStrLn $ "Game saved to file: " ++ show filename
                          writeFile filename (show w)
 
 handle_grid_size :: (Float,Float) -> World -> World
-handle_grid_size (x,y) w = if (pointInBox (x,y) ((-520),133) ((-478),(105)))
+handle_grid_size (x,y) w = if (pointInBox (x,y) ((-539),137) ((-501),(101)))
 							then w{settings = (change_grid_size (settings w) 3)}
 							else
-								if (pointInBox (x,y) ((-470),133) ((-428),(106)))
+								if (pointInBox (x,y) ((-487),136) ((-449),(101)))
 									then w{settings = (change_grid_size (settings w) 6)}
 									else
-										if (pointInBox (x,y) ((-420),133) ((-378),(106)))
+										if (pointInBox (x,y) ((-439),138) ((-397),(99)))
 											then w{settings = (change_grid_size (settings w) 19)}
 											else w
 
@@ -86,10 +86,10 @@ change_grid_size :: Settings -> Int -> Settings
 change_grid_size settings size = settings{grid_size = size}
 
 handle_target_size :: (Float,Float) -> World -> World
-handle_target_size (x,y) w = if (pointInBox (x,y) ((-495),(-13)) ((-454),(-40)))
+handle_target_size (x,y) w = if (pointInBox (x,y) ((-513),(-10)) ((-475),(-42)))
 							then w{settings = (change_target_size (settings w) 3)}
 							else
-								if (pointInBox (x,y) ((-445),(-12)) ((-402),(-43)))
+								if (pointInBox (x,y) ((-466),(-10)) ((-425),(-43)))
 									then w{settings = (change_target_size (settings w) 6)}
 									else w
 
@@ -97,21 +97,24 @@ change_target_size :: Settings -> Int -> Settings
 change_target_size settings size = settings{target_size = size}
 
 handle_ai_difficulty :: (Float,Float) -> World -> World
-handle_ai_difficulty (x,y) w = if (pointInBox (x,y) ((-495),(-163)) ((-453),(-190)))
+handle_ai_difficulty (x,y) w = if (pointInBox (x,y) ((-569),(-158)) ((-509),(-194)))
 							then w{settings = (change_ai_diff (settings w) 1)}
 							else
-								if (pointInBox (x,y) ((-443),(-161)) ((-402),(-192)))
+								if (pointInBox (x,y) ((-498),(-159)) ((-442),(-192)))
 									then w{settings = (change_ai_diff (settings w) 2)}
-									else w
+									else
+										if (pointInBox (x,y) ((-429),(-193)) ((-370),(-193)))
+											then w{settings = (change_ai_diff (settings w) 3)}
+											else w
 
 change_ai_diff :: Settings -> Int -> Settings
 change_ai_diff settings diff = settings{ai_difficulty = diff}
 
 handle_your_colour :: (Float,Float) -> World -> World
-handle_your_colour (x,y) w = if (pointInBox (x,y) ((-520),(-316)) ((-476),(-346)))
+handle_your_colour (x,y) w = if (pointInBox (x,y) ((-514),(-310)) ((-475),(-345)))
 							then w{settings = (change_colour (settings w) (Just Black))}
 							else
-								if (pointInBox (x,y) ((-421),(-314)) ((-375),(-345)))
+								if (pointInBox (x,y) ((-465),(-309)) ((-424),(-344)))
 									then w{settings = (change_colour (settings w) (Just White))}
 									else w
 
