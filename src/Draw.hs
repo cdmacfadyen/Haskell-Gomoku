@@ -73,7 +73,7 @@ draw_hint :: World -> Picture
 draw_hint w  = case (hint (board w)) of
 					Just pos -> if (is_in_progress_game w)
 									then Color red $ uncurry Translate (boardSpaceToScreenSpace w pos) $ thickCircle (squareSize w / 2) 9
-									else trace (show "nope") Blank
+									else Blank
 					Nothing  -> Blank
 
 draw_undo :: (Float,Float) -> Picture -> Picture -> Picture

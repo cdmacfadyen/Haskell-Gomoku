@@ -22,35 +22,35 @@ handleInput (EventMotion (x, y)) w = return w {mouse=(x,y),board = newboard}
 -- Passes in point that's closest to a valid placement coord
 handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) w = case maybepos of
     Just pos  -> if (is_in_progress_game w) == True then return $ maybeBoardToWorld w $ makeMove (board w) (turn w) pos else return w
-    Nothing   -> if trace (show (x,y)) (pointInBox (x,y) (384,180) (596,119))
+    Nothing   -> if (pointInBox (x,y) (384,180) (596,119))
 							then return $ undo 2 w
 							else
-								if trace (show (x,y)) (pointInBox (x,y) (381,80) (565,18))
+								if (pointInBox (x,y) (381,80) (565,18))
 									then 
 										do saveGame "gomoku.save" w
 										   return w
 									else 
-										if trace (show (x,y)) (pointInBox (x,y) (384,(-20)) (566,(-81)))
+										if (pointInBox (x,y) (384,(-20)) (566,(-81)))
 											then return w{board = new_board, turn = Black, settings = new_settings}
 											else
-												if trace (show (x,y)) (pointInBox (x,y) ((-539),137) ((-397),(99))) 
+												if (pointInBox (x,y) ((-539),137) ((-397),(99))) 
 													then return $ handle_grid_size (x,y) w 
 													else
-														if trace (show (x,y)) (pointInBox (x,y) ((-513),(-10)) ((-425),(-43)))
+														if (pointInBox (x,y) ((-513),(-10)) ((-425),(-43)))
 															then return $ handle_target_size (x,y) w 
 															else
-																if trace (show (x,y)) (pointInBox (x,y) ((-569),(-158)) ((-370),(-193)))
+																if (pointInBox (x,y) ((-569),(-158)) ((-370),(-193)))
 																	then return $ handle_ai_difficulty (x,y) w
 																	else
-																		if trace (show (x,y)) (pointInBox (x,y) ((-514),(-310)) ((-424),(-344)))
+																		if (pointInBox (x,y) ((-514),(-310)) ((-424),(-344)))
 																			then return $ handle_your_colour (x,y) w
 																			else
-																				if trace (show (x,y)) (pointInBox (x,y) ((-560),(331)) ((-383),(270)))
+																				if (pointInBox (x,y) ((-560),(331)) ((-383),(270)))
 																					then return $ start_game w
 																					else
-																						if trace (show (x,y)) (pointInBox (x,y) ((382),(-122)) ((567),(-178)))
-																							then trace (show (x,y)) return w {board = newboard}
-																							else trace (show (x,y)) return w 
+																						if (pointInBox (x,y) ((382),(-122)) ((567),(-178)))
+																							then return w {board = newboard}
+																							else return w 
     where maybepos = mouse_board (board w)
     	  new_board = (board w){pieces = [], won = Nothing, hint = Nothing}
     	  new_settings = (settings w){game_in_progress=True}
