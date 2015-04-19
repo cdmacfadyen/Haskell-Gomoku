@@ -19,7 +19,8 @@ transformUpLeft = (-1, -1)
 
 -- ^Returns a list containing all of the transform directions.
 allTransforms :: [Position]
-allTransforms = [transformUp, transformUpRight, transformRight, transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft]
+allTransforms = [transformUp, transformUpRight, transformRight, 
+                   transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft]
 
 -- ^Given a position and a transform, return the position modified by the transform.
 transform :: Position -> -- ^Takes a position to apply transformation to
@@ -74,8 +75,9 @@ makeMove :: Board -> -- ^The current Board.
             Colour -> -- ^The colour of the current player
             Position -> -- ^The position a piece is trying to be placed
             Maybe Board -- ^The new board state after attempted move
-makeMove b col p = if contains p $ pieces b then Nothing else Just newboard {won = checkWon newboard, hint = Nothing}
-        where newboard = b {pieces = ((p, col) : (pieces b))}
+makeMove b col p = if contains p $ pieces b then Nothing else 
+                   Just newboard {won = checkWon newboard, hint = Nothing}
+                      where newboard = b {pieces = ((p, col) : (pieces b))}
 
 -- | Given the same arguments as makeMove, return a new board if the move was successful, 
 -- or the original board if it was not.
@@ -91,7 +93,8 @@ maybeMakeMove b col p = case makeMove b col p of
 contains :: Position -> -- ^Takes the position of board where piece is trying to go
             [Piece] -> -- ^The list of all pieces on the board
             Bool -- ^Returns whether the position is occupied or not
-contains position positions = (position, White) `elem` positions || (position, Black) `elem` positions
+contains position positions = (position, White) `elem` positions 
+                              || (position, Black) `elem` positions
 
 -- | Gets a World from original World and Maybe Board
 -- Have to check if Maybe Board is Nothing or Board before returning World
@@ -99,8 +102,10 @@ maybeBoardToWorld :: World -> -- ^Takes the current World state
                      Maybe Board -> -- ^The new Board state to be updated in World
                      World -- ^A new World state with the new Board state
 maybeBoardToWorld b Nothing = b
-maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b), settings = new_settings}
-          where new_settings = (settings b){game_in_progress = (is_in_progress_game b)}
+maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b),
+                                       settings = new_settings}
+                                        where new_settings = (settings b){game_in_progress
+                                           = (is_in_progress_game b)}
 
 -- | Checks if game is still ongoing or not
 is_in_progress_game :: World -> -- ^Takes current World state
@@ -122,7 +127,9 @@ getPiecePos :: Piece -> -- ^Takes piece you want the position for
                Position -- ^Returns position of a piece
 getPiecePos (position, _) = position
 
--- | Given the list of pieces, a transform direction to check, a position of a piece to check, the target number in a row and a colour to check victory for, return Just colour if colour has won, or Nothing otherwise.
+-- | Given the list of pieces, a transform direction to check, a position
+-- of a piece to check, the target number in a row and a colour to check 
+-- victory for, return Just colour if colour has won, or Nothing otherwise.
 checkTransformColour :: [Piece] -> -- ^Takes list of all pieces on the board
                         Position -> -- ^The transform direction
                         Position -> -- ^Piece position to check
@@ -132,7 +139,8 @@ checkTransformColour :: [Piece] -> -- ^Takes list of all pieces on the board
 checkTransformColour piecelist (x_diff, y_diff) (x, y) targetN colour
     | ((x, y), colour) `elem` piecelist = if targetN == 0
                                                 then Nothing
-                                                else checkTransformColour piecelist (x_diff, y_diff) (x + x_diff, y + y_diff) (targetN - 1) colour
+                                                else checkTransformColour piecelist 
+                                                   (x_diff, y_diff) (x + x_diff, y + y_diff) (targetN - 1) colour
     | otherwise                         = if targetN == 0
                                                 then Just colour
                                                 else Nothing
@@ -147,7 +155,8 @@ checkTransformColourCount :: [Piece] -> -- ^Takes a list of pieces on the board
 checkTransformColourCount piecelist (x_diff, y_diff) (x, y) targetN colour
     | ((x, y), colour) `elem` piecelist = if targetN == 0
                                                 then 0
-                                                else checkTransformColourCount piecelist (x_diff, y_diff) (x + x_diff, y + y_diff) (targetN - 1) colour
+                                                else checkTransformColourCount piecelist 
+                                                   (x_diff, y_diff) (x + x_diff, y + y_diff) (targetN - 1) colour
     | otherwise                         = if targetN == 0
                                                 then 1
                                                 else 0
@@ -167,11 +176,15 @@ checkn :: Board -> -- ^Takes the current Board state
 checkn b targetN = msum [(checkTransformColour piecelist transform position targetN colour)
                     | (position, colour) <- piecelist,
                       transform <- allTransforms,
-                      onedge position transform] -- ^Only check pieces that are on the edges of a row/column/diagonal at the top level, middle spaces will be checked by recursion from these, and this ensures you can't have more than targetN in a row.
+                      onedge position transform] -- ^Only check pieces that are on the edges 
+                                                 -- of a row/column/diagonal at the top level, 
+                                                 -- middle spaces will be checked by recursion from these, 
+                                                 -- and this ensures you can't have more than targetN in a row.
     where piecelist = pieces b
           onedge (x, y) (x_diff, y_diff) = not (contains (x - x_diff, y - y_diff) piecelist)
 
--- | Takes a board, a number in a row to check for and a colour to check for, return the number of lines of exactly that length belonging to that player
+-- | Takes a board, a number in a row to check for and a colour to check for, 
+-- return the number of lines of exactly that length belonging to that player
 countNConnected :: Board -> -- ^Takes the current Board state
                    Int -> -- ^How many rows of 'n' length you want to search for
                    Colour -> -- ^The colour (player) of the pieces you are searching for
@@ -186,7 +199,8 @@ squareSize :: World -> -- ^Takes current World state
               Float -- ^Returns the number of pixels in a grid square
 squareSize w = fromIntegral (width w) / (fromIntegral . size $ board w)
 
--- | Given a world and a screen-space co-ordinate, return the closest board position to that co-ordinate if it is in bounds, or Nothing if it is not.
+-- | Given a world and a screen-space co-ordinate, return the closest board position to 
+-- that co-ordinate if it is in bounds, or Nothing if it is not.
 screenSpaceToBoardSpace :: World -> -- ^Takes the current World state
                            (Float, Float) -> -- ^The position clicked on the board
                            Maybe Position -- ^Returns the nearest valid position on the board, if any
@@ -239,7 +253,8 @@ get_max board = (size board) `quot` 2
 validMove :: Board -> -- ^Takes current Board state
              Position -> -- ^Position current clicked
              Bool -- ^True if valid, else False id invalid
-validMove board (x, y) = x >= (get_min board) && y >= (get_min board) && x <= (get_max board) && y <= (get_max board)
+validMove board (x, y) = x >= (get_min board) && y >= (get_min board) && 
+                            x <= (get_max board) && y <= (get_max board)
 
 -- | Undoes the supplied number of moves
 undo :: Int -> -- ^How many moves you want to undo
