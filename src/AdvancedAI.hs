@@ -124,11 +124,16 @@ minimise board (pos:poss) current_turn depth value alpha beta maximising_colour
 evaluate :: Board -> -- ^Takes the current 'Board' state
             Colour -> -- ^Player colour that you want to evaluate the 'Board' for
             Int -- ^Returns a value based on how good the 'Board' is for the player
-evaluate b col =   (sum [(countNConnected b n col) * (weight n)
-                      | n <- [(target b), (target b) - 1 .. 1]]) `quot` 2  +
-                         sum [(countNConnected b n (switch col)) * (-weight n)
-                            | n <- [(target b), (target b) - 1 .. 1]]
+evaluate b col =   if goal > 3
+                      then (sum [(countNConnected b n col) * (weight n)
+                                | n <- [goal, goal - 1 .. 1]]) `quot` 2  +
+                            sum [(countNConnected b n (switch col)) * (-weight n)
+                                | n <- [goal, goal - 1 .. 1]]
+                      else case checkWon b of
+                              Just c -> if c == col then 100 else -100
+                              Nothing -> 0
   where weight n = 2 ^ n
+        goal = target b
 
 -- | Makes an AI move, based on the best result from tree, and returns
 -- a maybe board if successful.
@@ -138,7 +143,7 @@ move_ai :: World -> -- ^Takes the current 'World' state
            Maybe Board -- ^The new 'Board' state with the AI move, or Nothing
 move_ai world board colour = makeMove board colour (getbestmove board depth (turn world))
     where difficulty = ai_difficulty (settings world)
-          depth = 3 + difficulty
+          depth = 2 + difficulty
 
 -- | AI world, resulting from an AI move.
 get_ai_world :: World -> World -- ^ New updated 'World'.

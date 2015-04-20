@@ -122,7 +122,7 @@ handle_ai_difficulty (x,y) w = if (pointInBox (x,y) ((-569),(-158)) ((-509),(-19
                                      if (pointInBox (x,y) ((-498),(-159)) ((-442),(-192)))
                                         then w{settings = (change_ai_diff (settings w) 2)}
                                         else
-                                           if (pointInBox (x,y) ((-429),(-193)) ((-370),(-193)))
+                                           if (pointInBox (x,y) ((-429),(-161)) ((-370),(-193)))
                                               then w{settings = (change_ai_diff (settings w) 3)}
                                               else w
 

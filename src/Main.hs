@@ -58,7 +58,7 @@ main = do args <- getArgs
           med_h <- loadBMP "images/in_game_settings/med-h.bmp"
           tied <- loadBMP "images/tied.bmp"
           
-          world <- if length args == 4
+          world <- if length args == 5
           			  then return $ initialise_world args
           			  else 
           			  	if length args == 0
@@ -111,7 +111,7 @@ default_world = World default_board Black (0,0) Black White (configure_settings(
 
 default_world_ingame_sets = World default_board Black (0,0) Black White default_settings_in_game 600
 
-default_settings = Settings 0 0 0 Nothing True True
+default_settings = Settings 0 0 2 Nothing True True
 
 default_settings_in_game = Settings 0 0 0 Nothing False False
 
@@ -136,7 +136,7 @@ initialise_world args = World (initialise_board (read(args !! 1)::Int) (read(arg
 								(0,0) -- Initial mouse position default
 								(colour) -- Human player colour
 								(switch colour) -- Computer colour
-								default_settings -- settings configured in command line.
+								default_settings{ai_difficulty = (read(args !! 4)::Int) } -- settings configured in command line.
 								600 -- Width, hard-coded must not be changed ever.
 			where colour = get_colour_from_command (args !! 3)
 
@@ -166,5 +166,6 @@ print_usage = "\n\nusage: gomoku world_type board_size target_size which_colour\
 				\\n\t\t board_size: allowed 3 <= size <= 19\
 				\\n\t\t target_size: allowed 3 <= target <= 16\
 				\\n\t\t which_colour: string arguments [Black || White]\
+        \\n\t\t ai_diff: allowed 1 <= size <= 3\
 				\\n Please note that if you are using the default setting, do not pass\
 				\ any other parameters, other than the string def.\n\n"
