@@ -52,15 +52,6 @@ handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) w = case maybepos of
     	  new_board = (board w){pieces = [], won = Nothing, hint = Nothing}
     	  new_settings = (settings w){game_in_progress=True}
     	  newboard = (board w) {hint = Just (getbestmove (board w) 1 (turn w))}
-
-handleInput (EventKey (Char 'e') Down _ _) w = trace (show $ evaluate (board w) (turn w)) $ return w
-handleInput (EventKey (Char 'u') Down _ _) w = return $ undo 2 w -- Undo twice to get back to player's move
-handleInput (EventKey (Char 's') Down _ _) w = do saveGame "gomoku.save" w
-                                                  return w
-handleInput (EventKey (Char 'h') Down _ _) w = return w {board = newboard}                                                
-	where newboard = (board w) {hint = Just (getbestmove (board w) 1 (turn w))}
-handleInput (EventKey (Char k) Down _ _) w = return $ trace ("Is there a win? " ++ show (won $ board w)) w
-handleInput (EventKey (Char k) Up _ _) w = return w
 handleInput e w = return w
 
 -- | When clicked on screen though GUI, this function is called which takes a
