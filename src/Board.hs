@@ -17,12 +17,13 @@ transformLeft = (-1, 0)
 transformUpLeft = (-1, -1)
 
 
--- ^Returns a list containing all of the transform directions.
+-- | Returns a list containing all of the transform directions.
 allTransforms :: [Position]
 allTransforms = [transformUp, transformUpRight, transformRight, 
-                   transformDownRight, transformDown, transformDownLeft, transformLeft, transformUpLeft]
+                   transformDownRight, transformDown, transformDownLeft, 
+                      transformLeft, transformUpLeft]
 
--- ^Given a position and a transform, return the position modified by the transform.
+-- | Given a position and a transform, return the position modified by the transform.
 transform :: Position -> -- ^Takes a position to apply transformation to
              Position -> -- ^Transformation to apply on postion
              Position -- ^Returns the transformed postion
@@ -43,7 +44,8 @@ type Piece = (Position, Colour)
 -- | Game Board with its attributes
 data Board = Board { size :: Int, -- ^Board Size
                      target :: Int, -- ^Target 'in-a-row'
-                     mouse_board :: Maybe Position, -- ^Mouse position on the Board
+                     mouse_board :: Maybe Position, -- ^Mouse position 
+                                                    -- on the Board
                      hint :: Maybe Position, -- ^Hint Position
                      pieces :: [Piece], -- ^Position List
                    	 won :: Maybe Colour } -- ^Win Status
@@ -79,8 +81,8 @@ makeMove b col p = if contains p $ pieces b then Nothing else
                    Just newboard {won = checkWon newboard, hint = Nothing}
                       where newboard = b {pieces = ((p, col) : (pieces b))}
 
--- | Given the same arguments as makeMove, return a new board if the move was successful, 
--- or the original board if it was not.
+-- | Given the same arguments as makeMove, return a new board if the move was
+-- successful, or the original board if it was not.
 maybeMakeMove :: Board -> -- ^Takes the current board
                  Colour -> -- ^The current player's colour
                  Position -> -- ^The position where a piece is trying to be placed
@@ -104,8 +106,8 @@ maybeBoardToWorld :: World -> -- ^Takes the current World state
 maybeBoardToWorld b Nothing = b
 maybeBoardToWorld b (Just mBoard) = b {board = mBoard, turn = switch (turn b),
                                        settings = new_settings}
-                                        where new_settings = (settings b){game_in_progress
-                                           = (is_in_progress_game b)}
+                                        where new_settings = (settings b) {game_in_progress = 
+                                           (is_in_progress_game b)}
 
 -- | Checks if game is still ongoing or not
 is_in_progress_game :: World -> -- ^Takes current World state
@@ -140,7 +142,9 @@ checkTransformColour piecelist (x_diff, y_diff) (x, y) targetN colour
     | ((x, y), colour) `elem` piecelist = if targetN == 0
                                                 then Nothing
                                                 else checkTransformColour piecelist 
-                                                   (x_diff, y_diff) (x + x_diff, y + y_diff) (targetN - 1) colour
+                                                   (x_diff, y_diff) 
+                                                      (x + x_diff, y + y_diff) 
+                                                         (targetN - 1) colour
     | otherwise                         = if targetN == 0
                                                 then Just colour
                                                 else Nothing
@@ -156,7 +160,9 @@ checkTransformColourCount piecelist (x_diff, y_diff) (x, y) targetN colour
     | ((x, y), colour) `elem` piecelist = if targetN == 0
                                                 then 0
                                                 else checkTransformColourCount piecelist 
-                                                   (x_diff, y_diff) (x + x_diff, y + y_diff) (targetN - 1) colour
+                                                   (x_diff, y_diff) 
+                                                      (x + x_diff, y + y_diff) 
+                                                         (targetN - 1) colour
     | otherwise                         = if targetN == 0
                                                 then 1
                                                 else 0
@@ -181,14 +187,18 @@ checkn b targetN = msum [(checkTransformColour piecelist transform position targ
                                                  -- middle spaces will be checked by recursion from these, 
                                                  -- and this ensures you can't have more than targetN in a row.
     where piecelist = pieces b
-          onedge (x, y) (x_diff, y_diff) = not (contains (x - x_diff, y - y_diff) piecelist)
+          onedge (x, y) (x_diff, y_diff) = not (contains 
+                                                  (x - x_diff, y - y_diff) 
+                                                     piecelist)
 
 -- | Takes a board, a number in a row to check for and a colour to check for, 
 -- return the number of lines of exactly that length belonging to that player
 countNConnected :: Board -> -- ^Takes the current Board state
                    Int -> -- ^How many rows of 'n' length you want to search for
-                   Colour -> -- ^The colour (player) of the pieces you are searching for
-                   Int -- ^Returns the number of lines that have been found matching the Int
+                   Colour -> -- ^The colour (player) of the pieces you are 
+                             -- searching for
+                   Int -- ^Returns the number of lines that have been found 
+                       -- matching the Int
 countNConnected b targetN col = sum [checkTransformColourCount piecelist transform position targetN col
                                     |(position, colour) <- piecelist,
                                      transform <- allTransforms]
@@ -205,7 +215,8 @@ screenSpaceToBoardSpace :: World -> -- ^Takes the current World state
                            (Float, Float) -> -- ^The position clicked on the board
                            Maybe Position -- ^Returns the nearest valid position on the board, if any
 screenSpaceToBoardSpace world (screenx, screeny) 
-    | boardx >= minbound && boardx <= maxbound && boardy >= minbound && boardy <= maxbound = Just (boardx, boardy)
+    | boardx >= minbound && boardx <= maxbound && boardy >= minbound && 
+         boardy <= maxbound = Just (boardx, boardy)
     | otherwise = Nothing
     where even = (size $ board world) `rem` 2 == 0
           gridsize      = squareSize world
@@ -221,10 +232,12 @@ screenSpaceToBoardSpace world (screenx, screeny)
                           else -halfgridwidth - 1
           maxbound      = halfgridwidth
 
--- | Given a world and a board-space co-ordinate position, return the screen-space co-ordinate of that position.
+-- | Given a world and a board-space co-ordinate position, return the 
+-- screen-space co-ordinate of that position.
 boardSpaceToScreenSpace :: World -> -- ^Takes the current World state
                            Position -> -- ^A board position given
-                           (Float, Float) -- ^The screen space co-ordinate of the board position
+                           (Float, Float) -- ^The screen space co-ordinate of 
+                                          -- the board position
 boardSpaceToScreenSpace world (boardx, boardy)
     | even      = (screenx, screeny)
     | otherwise = (screenx + gridsize / 2, screeny + gridsize / 2)
@@ -266,7 +279,8 @@ undo n w = foldr (.) id (replicate n undoOne) w
 undoOne :: World -> -- ^Takes current World
            World -- ^Returns new World proir to current World
 undoOne w = do let (newmoves, newturn) = if length currentmoves > 0
-                                            then (tail currentmoves, switch currentturn)
+                                            then (tail currentmoves, 
+                                                     switch currentturn)
                                             else (currentmoves, currentturn)
                let newboard = currentboard {pieces = newmoves}
                w {board = newboard, turn = newturn}
