@@ -53,7 +53,6 @@ handleInput (EventKey (MouseButton LeftButton) Up m (x, y)) w = case maybepos of
     	  new_settings = (settings w){game_in_progress=True}
     	  newboard = (board w) {hint = Just (getbestmove (board w) 1 (turn w))}
 
-handleInput (EventKey (Char 'c') Down _ _) w = trace (countTotals w) $ return w
 handleInput (EventKey (Char 'e') Down _ _) w = trace (show $ evaluate (board w) (turn w)) $ return w
 handleInput (EventKey (Char 'u') Down _ _) w = return $ undo 2 w -- Undo twice to get back to player's move
 handleInput (EventKey (Char 's') Down _ _) w = do saveGame "gomoku.save" w
