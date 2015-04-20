@@ -136,7 +136,9 @@ move_ai :: World -> -- ^Takes the current World state
            Board -> --The current Board state
            Colour -> -- ^The colour of the AI
            Maybe Board -- ^The new Board state with the AI move, or Nothing
-move_ai world board colour = makeMove board colour (getbestmove board 4 (turn world))
+move_ai world board colour = makeMove board colour (getbestmove board depth (turn world))
+    where difficulty = ai_difficulty (settings world)
+          depth = 3 + difficulty
 
 -- | AI world, resulting from an AI move.
 get_ai_world :: World -> World -- ^ New updated world.
