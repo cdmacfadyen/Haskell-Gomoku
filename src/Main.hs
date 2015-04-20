@@ -56,6 +56,7 @@ main = do args <- getArgs
 
           med <- loadBMP "images/in_game_settings/med.bmp"
           med_h <- loadBMP "images/in_game_settings/med-h.bmp"
+          tied <- loadBMP "images/tied.bmp"
           
           world <- if length args == 4
           			  then return $ initialise_world args
@@ -86,7 +87,7 @@ main = do args <- getArgs
                  					thinking ai_difficulty black_button done grid_size
                  					nineteen six target_size three white_button colour_button black_won white_won hint_button
                           hint_button_h done_h black_h white_h three_h six_h nineteen2 nineteen_h easy easy_h hard 
-                          hard_h med med_h)) -- Convert the world state to gloss state.
+                          hard_h med med_h tied)) -- Convert the world state to gloss state.
                  -- | Called if there is an input event. If it is the
            	      --human player's turn, should update the board.
                  handleInput -- handleInput is an impure function since it saves/loads files.

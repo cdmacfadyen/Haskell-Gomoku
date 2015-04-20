@@ -13,8 +13,8 @@ drawWorld :: World -> Picture -> Picture -> Picture -> Picture
 			-> Picture -> Picture -> Picture -> Picture -> Picture
 			-> Picture -> Picture -> Picture -> Picture -> Picture 
 			-> Picture -> Picture -> Picture -> Picture -> Picture 
-			-> Picture -> Picture -> Picture -> Picture
-drawWorld world background black_p white_p undo save undo_h save_h restart restart_h thinking ai_difficulty black done grid_size nineteen six target_size three white colour_button black_won white_won hint_button hint_h done_h black_h white_h three_h six_h nineteen2 nineteen_h easy easy_h hard hard_h med med_h = 
+			-> Picture -> Picture -> Picture -> Picture -> Picture
+drawWorld world background black_p white_p undo save undo_h save_h restart restart_h thinking ai_difficulty black done grid_size nineteen six target_size three white colour_button black_won white_won hint_button hint_h done_h black_h white_h three_h six_h nineteen2 nineteen_h easy easy_h hard hard_h med med_h tied = 
 																			   Pictures[background, drawBoard world, 
 																			   drawPieces world black_p white_p, 
 																			   highlight world, draw_hint world,
@@ -25,7 +25,7 @@ drawWorld world background black_p white_p undo save undo_h save_h restart resta
 																			   draw_target_txt world target_size, draw_ai_txt world ai_difficulty,
 																			   draw_your_colour world colour_button, check_done world (mouse world) done done_h,
 																			   is_draw_settings world three six nineteen2 white black black_won white_won easy easy_h 
-																			   hard hard_h med med_h three_h six_h nineteen_h white_h black_h, draw_winner world black_won white_won, 
+																			   hard hard_h med med_h three_h six_h nineteen_h white_h black_h, draw_winner world black_won white_won tied, 
 																			   draw_hints_btn (mouse world) hint_button hint_h]
 -- | Draws the board.
 drawBoard :: World -> Picture
@@ -186,9 +186,11 @@ draw_done set (x,y) pict pict_h = if (pointInBox (x,y) ((-560),(331)) ((-383),(2
 									then Translate (-470) 300 $ pict
 									else Blank
 
-draw_winner :: World -> Picture -> Picture -> Picture
-draw_winner w black_won white_won = case (won (board w)) of
+draw_winner :: World -> Picture -> Picture -> Picture -> Picture
+draw_winner w black_won white_won tied = case (won (board w)) of
 			Just Black -> black_won
 			Just White -> white_won
-			Nothing -> Blank
+			Nothing -> if ((size (board w) + 1)^2) == (length (pieces (board w)))
+						then tied
+						else Blank
 
