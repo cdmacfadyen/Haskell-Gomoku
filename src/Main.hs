@@ -11,7 +11,7 @@ import Input
 import AdvancedAI
 
 -- | Initialize the main IO loop.
-main :: IO ()		-- ^ IO State.
+main :: IO () -- ^ IO State.
 -- | Starts up a graphics window and sets up handlers for 
 -- dealing with inputs and updating the world state.
 main = do args <- getArgs
@@ -95,7 +95,10 @@ main = do args <- getArgs
                  -- should update the board with an AI generated move.
                  (curry $ return . (uncurry updateWorld))
 
-loadGame :: String -> IO World
+-- | This function is called which takes a file name from CLI, and 
+-- returns IO 'World'.
+loadGame :: String -> -- ^Takes name of file as 'String'
+            IO World -- ^Returns IO 'World'
 loadGame filename = do putStrLn $ "Loading game from file: " ++ show filename
                        contents <- readFile filename
                        return (read contents :: World)
@@ -103,7 +106,7 @@ loadGame filename = do putStrLn $ "Loading game from file: " ++ show filename
 -- | Default board: 6x6, target is 3 in a row, no initial pieces
 default_board = Board 6 3 Nothing Nothing [] Nothing
 
--- | Default world: initial board, black is current player.
+-- ^Default world: initial board, black is current player.
 default_world = World default_board Black (0,0) Black White (configure_settings(default_settings)) 600
 
 default_world_ingame_sets = World default_board Black (0,0) Black White default_settings_in_game 600
@@ -112,15 +115,22 @@ default_settings = Settings 0 0 0 Nothing True True
 
 default_settings_in_game = Settings 0 0 0 Nothing False False
 
-configure_settings :: Settings -> Settings
+-- | This function changes the flag in 'Settings' that indicates configuration
+-- to true, and returns the new 'Settings'
+configure_settings :: Settings -> -- ^Takes the current 'Settings'
+                      Settings -- ^Returns new 'Settings' indicating that
+                               -- configuration has occurred
 configure_settings settings = settings{configured=True}
 
--- Initialise board from command line arguments.
-initialise_board :: Int -> Int -> Board
+-- | Initialise board from command line arguments.
+initialise_board :: Int -> -- ^Takes a specified board size
+                    Int -> -- ^A specified target size
+                    Board -- ^Returns a new 'Board' state
 initialise_board board_size target = Board (check_size board_size) (check_target target) Nothing Nothing [] Nothing
 
--- Initialise world from command line arguments.
-initialise_world :: [String] -> World
+-- | Initialise world from command line arguments.
+initialise_world :: [String] -> -- ^String list of CLI arguments
+                    World -- ^Returns new 'World' state
 initialise_world args = World (initialise_board (read(args !! 1)::Int) (read(args !! 2)::Int)) -- Init board
 								Black -- First player, hardcoded, must always be black.
 								(0,0) -- Initial mouse position default
@@ -130,17 +140,23 @@ initialise_world args = World (initialise_board (read(args !! 1)::Int) (read(arg
 								600 -- Width, hard-coded must not be changed ever.
 			where colour = get_colour_from_command (args !! 3)
 
-check_size :: Int -> Int
+-- | Function that checks if the board size is valid or not
+check_size :: Int -> -- ^The board size to check
+              Int -- ^Returns the board size if valid or error if invalid
 check_size size = if 2 <= size && size <= 19 then size else error "Incorrect board size, try again [2-19]"
 
-check_target :: Int -> Int
+-- | Function that checks if the target size is valid or not
+check_target :: Int -> -- ^The target size to check
+                Int -- ^Returns the target size if valid or error if invalid
 check_target target = if 3 <= target && target <= 6 then target else error "Incorrect target size, try again [3-6]"
 
-get_colour_from_command :: String -> Colour
+-- | Function that gets 'Colour' from CLI entered by the user
+get_colour_from_command :: String -> -- ^Gets a string of the desired 'Colour'
+                           Colour -- ^Returns the matching 'Colour'
 get_colour_from_command command
 				| command == "Black" = Black
 				| command == "White" = White
-				|otherwise			 = error "Incorrect colour input, try again! [Black/White]"
+				| otherwise			 = error "Incorrect colour input, try again! [Black/White]"
 
 print_usage :: String
 print_usage = "\n\nusage: gomoku world_type board_size target_size which_colour\
