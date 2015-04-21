@@ -125,13 +125,9 @@ minimise board (pos:poss) current_turn depth value alpha beta maximising_colour
 evaluate :: Board -> -- ^Takes the current 'Board' state
             Colour -> -- ^Player colour that you want to evaluate the 'Board' for
             Int -- ^Returns a value based on how good the 'Board' is for the player
-evaluate b col =   (sum [(countNConnected b n col) * (weight n)
-                      | n <- [(target b), (target b) - 1 .. 1]]) `quot` 4  +
-                         sum [(countNConnected b n (switch col)) * (-weight n)
-                            | n <- [(target b), (target b) - 1 .. 1]]
 evaluate b col =   if goal > 3
                       then (sum [(countNConnected b n col) * (weight n)
-                                | n <- [goal, goal - 1 .. 1]]) `quot` 2  +
+                                | n <- [goal, goal - 1 .. 1]]) `quot` 4  +
                             sum [(countNConnected b n (switch col)) * (-weight n)
                                 | n <- [goal, goal - 1 .. 1]]
                       else case checkWon b of

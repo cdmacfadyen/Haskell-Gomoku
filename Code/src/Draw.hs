@@ -6,58 +6,35 @@ import Board
 import Debug.Trace
 
 -- | Overall Draw Function.
-<<<<<<< HEAD:src/Draw.hs
 drawWorld :: World -> Picture -> Picture -> Picture -> Picture ->
-			 Picture -> Picture -> Picture -> Picture -> Picture ->
-			 Picture -> Picture -> Picture -> Picture -> Picture ->
-			 Picture -> Picture -> Picture -> Picture -> Picture ->
-			 Picture -> Picture -> Picture -> Picture -> Picture ->
-			 Picture -> Picture -> Picture -> Picture -> Picture ->
-			 Picture -> Picture -> Picture -> Picture -> Picture ->
-			 Picture -> Picture -> Picture -> Picture -> Picture
+             Picture -> Picture -> Picture -> Picture -> Picture ->
+             Picture -> Picture -> Picture -> Picture -> Picture ->
+             Picture -> Picture -> Picture -> Picture -> Picture ->
+             Picture -> Picture -> Picture -> Picture -> Picture ->
+             Picture -> Picture -> Picture -> Picture -> Picture ->
+             Picture -> Picture -> Picture -> Picture -> Picture ->
+             Picture -> Picture -> Picture -> Picture -> Picture ->
+             Picture -> Picture
 drawWorld world background black_p white_p undo save undo_h save_h 
-   restart restart_h thinking ai_difficulty black done grid_size nineteen six 
-      target_size three white colour_button black_won white_won hint_button hint_h 
-         done_h black_h white_h three_h six_h nineteen2 nineteen_h easy easy_h hard 
-            hard_h med med_h tied = Pictures[background, drawBoard world, 
-                                    drawPieces world black_p white_p, 
-                                    highlight world, draw_hint world,
-                                    draw_undo (mouse world) undo undo_h,
-                                    draw_save (mouse world) save save_h,
-                                    draw_restart (mouse world) restart restart_h,
-                                    draw_ai_think world thinking, draw_grid_txt world grid_size,
-                                    draw_target_txt world target_size, draw_ai_txt world ai_difficulty,
-                                    draw_your_colour world colour_button, 
-                                    check_done world (mouse world) done done_h,
-                                    is_draw_settings world three six nineteen2 
-                                       white black black_won white_won easy easy_h 
-                                    hard hard_h med med_h three_h six_h nineteen_h white_h black_h, 
-                                    draw_winner world black_won white_won tied, 
-                                    draw_hints_btn (mouse world) hint_button hint_h]
-=======
-drawWorld :: World -> Picture -> Picture -> Picture -> Picture 
-			-> Picture -> Picture -> Picture -> Picture -> Picture 
-			-> Picture -> Picture -> Picture -> Picture -> Picture 
-			-> Picture -> Picture -> Picture -> Picture -> Picture 
-			-> Picture -> Picture -> Picture -> Picture -> Picture
-			-> Picture -> Picture -> Picture -> Picture -> Picture 
-			-> Picture -> Picture -> Picture -> Picture -> Picture 
-			-> Picture -> Picture -> Picture -> Picture -> Picture
-			-> Picture -> Picture
-drawWorld world background black_p white_p undo save undo_h save_h restart restart_h thinking ai_difficulty black done grid_size nineteen six target_size three white colour_button black_won white_won hint_button hint_h done_h black_h white_h three_h six_h nineteen2 nineteen_h easy easy_h hard hard_h med med_h tied five five_h = 
-																			   Pictures[background, drawBoard world, 
-																			   drawPieces world black_p white_p, 
-																			   highlight world, draw_hint world,
-																			   draw_undo (mouse world) undo undo_h,
-																			   draw_save (mouse world) save save_h,
-																			   draw_restart (mouse world) restart restart_h,
-																			   draw_ai_think world thinking, draw_grid_txt world grid_size,
-																			   draw_target_txt world target_size, draw_ai_txt world ai_difficulty,
-																			   draw_your_colour world colour_button, check_done world (mouse world) done done_h,
-																			   is_draw_settings world three six nineteen2 white black black_won white_won easy easy_h 
-																			   hard hard_h med med_h three_h six_h nineteen_h white_h black_h five five_h, draw_winner world black_won white_won tied, 
-																			   draw_hints_btn (mouse world) hint_button hint_h]
->>>>>>> 47a2d4d95c8a65eba298ab4877e3632e0e45b23f:Code/src/Draw.hs
+   restart restart_h thinking ai_difficulty black done grid_size 
+      nineteen six target_size three white colour_button black_won 
+         white_won hint_button hint_h done_h black_h white_h three_h 
+            six_h nineteen2 nineteen_h easy easy_h hard hard_h med med_h 
+               tied five five_h = 
+                                  Pictures[background, drawBoard world, 
+                                  drawPieces world black_p white_p, 
+                                  highlight world, draw_hint world,
+                                  draw_undo (mouse world) undo undo_h,
+                                  draw_save (mouse world) save save_h,
+                                  draw_restart (mouse world) restart restart_h,
+                                  draw_ai_think world thinking, draw_grid_txt world grid_size,
+                                  draw_target_txt world target_size, draw_ai_txt world ai_difficulty,
+                                  draw_your_colour world colour_button, check_done world (mouse world) done done_h,
+                                  is_draw_settings world three six nineteen2 white black black_won white_won easy easy_h 
+                                  hard hard_h med med_h three_h six_h nineteen_h white_h black_h five five_h, 
+                                  draw_winner world black_won white_won tied, 
+                                  draw_hints_btn (mouse world) hint_button hint_h]
+
 -- | Draws the board.
 drawBoard :: World -> -- ^Takes a current 'World' state
              Picture -- ^Returns a 'Picture'
@@ -97,22 +74,29 @@ drawPieces world black_piece white_piece = Pictures [drawPiece world
                                                       piece black_piece white_piece 
                                                        | piece <- pieces $ board world]
 
--- | Funciton that takes a 'World' state and 
+-- | Funciton that takes a 'World' state and returns the correct peice 'Picture'
 drawPiece :: World -> -- ^Takes current 'World' state
              (Position, Colour) -> -- ^Tuple containing co-ordinate and
                                    -- respective 'Colour'
-             Picture -> -- ^
-             Picture -> 
-             Picture
+             Picture -> -- ^Black piece 'Picture'
+             Picture -> -- ^White piece 'Picture'
+             Picture -- ^Returns correct 'Picture' to use
 drawPiece world (position, col) black_p white_p 
   = uncurry Translate (boardSpaceToScreenSpace world position) $ 
        Scale scaled scaled (colour_piece col black_p white_p)
             where scaled = (squareSize world) / 420
 
-colour_piece :: Colour -> Picture -> Picture -> Picture
+-- | Decides what piece 'Picture' to used based on 'Colour'
+colour_piece :: Colour -> -- ^The player 'Colour'
+                Picture -> -- ^Black piece 'Picture'
+                Picture -> -- ^White piece 'Picture'
+                Picture -- ^Returns correct 'Picture' to use
 colour_piece col black_p white_p = if col == Black then black_p else white_p
 
-highlight :: World -> Picture
+-- | Based on mouse position, decide whether to highlight where the cursor  
+-- is on screen or not (when within the grid)
+highlight :: World -> -- ^Takes current 'World' state
+             Picture -- ^Returns 'Picture'
 highlight w = case mousep of 
 		           Just p  -> if (game_in_progress (settings w)) == True 
 		                         then if contains p $ pieces $ board w 
@@ -123,17 +107,27 @@ highlight w = case mousep of
 		           Nothing -> Blank
     where mousep = mouse_board (board w)
 
-drawHighlight :: World -> Position -> Picture
+-- | Function that creates the highlighted image drawn on the game board
+drawHighlight :: World -> -- ^Takes the current 'World' state
+                 Position -> -- ^Whene the cursor is currently hovering
+                 Picture -- ^Returns the drawn 'Picture'
 drawHighlight w p = Color (greyN 0.25) $ uncurry Translate (boardSpaceToScreenSpace w p) $ thickCircle (squareSize w / 2) 10
 
-draw_hint :: World -> Picture
+-- | Function that creates the hint image drawn on the game board
+draw_hint :: World -> -- ^Takes the current 'World' state
+             Picture -- ^Returns the hint 'Picture'
 draw_hint w  = case (hint (board w)) of
 					Just pos -> if (is_in_progress_game w)
 									then Color red $ uncurry Translate (boardSpaceToScreenSpace w pos) $ thickCircle (squareSize w / 2) 9
 									else Blank
 					Nothing  -> Blank
 
-draw_undo :: (Float,Float) -> Picture -> Picture -> Picture
+-- | Function that creates the undo image drawn on the game board
+draw_undo :: (Float,Float) -> -- ^Takes the current mouse position
+             Picture -> -- ^The undo image unhighlighted
+             Picture -> -- ^The undo image highlighted
+             Picture -- ^Returns one of the images passed in dependent
+                     -- on the mouse position
 draw_undo (x,y) undo undo_h = if (pointInBox (x,y) (384,180) (596,119))
 								then Translate 475 150 $ undo_h
 								else Translate 475 150 $ undo

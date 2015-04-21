@@ -61,23 +61,23 @@ main = do args <- getArgs
           five_h <- loadBMP "images/in_game_settings/five-h.bmp"
           
           world <- if length args == 5
-          			  then return $ initialise_world args
-          			  else 
-          			  	if length args == 0
-                      then error print_usage
+                      then return $ initialise_world args
                       else 
-                        if (args !! 0) == "def"
-              			  		then return $ default_world
-              			  		else 
-              			  			if (isInfixOf ".save" (args !! 0))
-              			  				then loadGame $ args !! 0
-    	          			  			else 
-    	          			  				if (args !! 0) == "usage"
-    	          			  					then error print_usage
-    	          			  					else 
-    	          			  						if (args !! 0) == "ingame"
-    	          			  							then return $ default_world_ingame_sets
-    	          			  							else error print_usage
+                         if length args == 0
+                            then error print_usage
+                            else 
+                               if (args !! 0) == "def"
+                                  then return $ default_world
+                                  else 
+                                     if (isInfixOf ".save" (args !! 0))
+                                        then loadGame $ args !! 0
+                                        else 
+                                           if (args !! 0) == "usage"
+                                              then error print_usage
+                                              else 
+                                                 if (args !! 0) == "ingame"
+                                                    then return $ default_world_ingame_sets
+                                                    else error print_usage
 
           -- Keeping draw and update world 'pure' functions which are then converted to IO equivalents only in this function, 
           -- since they don't do any IO actions themselves.
@@ -85,9 +85,9 @@ main = do args <- getArgs
                  world
                  --(\x -> drawWorld x background)
                  (return . (\x -> drawWorld x background black_piece white_piece undo_btn 
-                 					save_btn undo_btn_h save_btn_h restart_btn restart_btn_h
-                 					thinking ai_difficulty black_button done grid_size
-                 					nineteen six target_size three white_button colour_button black_won white_won hint_button
+                                    save_btn undo_btn_h save_btn_h restart_btn restart_btn_h
+                                    thinking ai_difficulty black_button done grid_size
+                                    nineteen six target_size three white_button colour_button black_won white_won hint_button
                           hint_button_h done_h black_h white_h three_h six_h nineteen2 nineteen_h easy easy_h hard 
                           hard_h med med_h tied five five_h)) -- Convert the world state to gloss state.
                  -- | Called if there is an input event. If it is the
