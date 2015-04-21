@@ -6,51 +6,83 @@ import Board
 import Debug.Trace
 
 -- | Overall Draw Function.
-drawWorld :: World -> Picture -> Picture -> Picture -> Picture 
-			-> Picture -> Picture -> Picture -> Picture -> Picture 
-			-> Picture -> Picture -> Picture -> Picture -> Picture 
-			-> Picture -> Picture -> Picture -> Picture -> Picture 
-			-> Picture -> Picture -> Picture -> Picture -> Picture
-			-> Picture -> Picture -> Picture -> Picture -> Picture 
-			-> Picture -> Picture -> Picture -> Picture -> Picture 
-			-> Picture -> Picture -> Picture -> Picture -> Picture
-drawWorld world background black_p white_p undo save undo_h save_h restart restart_h thinking ai_difficulty black done grid_size nineteen six target_size three white colour_button black_won white_won hint_button hint_h done_h black_h white_h three_h six_h nineteen2 nineteen_h easy easy_h hard hard_h med med_h tied = 
-																			   Pictures[background, drawBoard world, 
-																			   drawPieces world black_p white_p, 
-																			   highlight world, draw_hint world,
-																			   draw_undo (mouse world) undo undo_h,
-																			   draw_save (mouse world) save save_h,
-																			   draw_restart (mouse world) restart restart_h,
-																			   draw_ai_think world thinking, draw_grid_txt world grid_size,
-																			   draw_target_txt world target_size, draw_ai_txt world ai_difficulty,
-																			   draw_your_colour world colour_button, check_done world (mouse world) done done_h,
-																			   is_draw_settings world three six nineteen2 white black black_won white_won easy easy_h 
-																			   hard hard_h med med_h three_h six_h nineteen_h white_h black_h, draw_winner world black_won white_won tied, 
-																			   draw_hints_btn (mouse world) hint_button hint_h]
+drawWorld :: World -> Picture -> Picture -> Picture -> Picture ->
+			 Picture -> Picture -> Picture -> Picture -> Picture ->
+			 Picture -> Picture -> Picture -> Picture -> Picture ->
+			 Picture -> Picture -> Picture -> Picture -> Picture ->
+			 Picture -> Picture -> Picture -> Picture -> Picture ->
+			 Picture -> Picture -> Picture -> Picture -> Picture ->
+			 Picture -> Picture -> Picture -> Picture -> Picture ->
+			 Picture -> Picture -> Picture -> Picture -> Picture
+drawWorld world background black_p white_p undo save undo_h save_h 
+   restart restart_h thinking ai_difficulty black done grid_size nineteen six 
+      target_size three white colour_button black_won white_won hint_button hint_h 
+         done_h black_h white_h three_h six_h nineteen2 nineteen_h easy easy_h hard 
+            hard_h med med_h tied = Pictures[background, drawBoard world, 
+                                    drawPieces world black_p white_p, 
+                                    highlight world, draw_hint world,
+                                    draw_undo (mouse world) undo undo_h,
+                                    draw_save (mouse world) save save_h,
+                                    draw_restart (mouse world) restart restart_h,
+                                    draw_ai_think world thinking, draw_grid_txt world grid_size,
+                                    draw_target_txt world target_size, draw_ai_txt world ai_difficulty,
+                                    draw_your_colour world colour_button, 
+                                    check_done world (mouse world) done done_h,
+                                    is_draw_settings world three six nineteen2 
+                                       white black black_won white_won easy easy_h 
+                                    hard hard_h med med_h three_h six_h nineteen_h white_h black_h, 
+                                    draw_winner world black_won white_won tied, 
+                                    draw_hints_btn (mouse world) hint_button hint_h]
 -- | Draws the board.
-drawBoard :: World -> Picture
+drawBoard :: World -> -- ^Takes a current 'World' state
+             Picture -- ^Returns a 'Picture'
 drawBoard world = Pictures[Color (greyN 0.6) . genGrid world . size $ board world]
 
--- Generates the grid of size count for the given world, by calling horizontal and vertical, and then translating the resultant grid by negative half of the screen width on each axis.
-genGrid :: World -> Int -> Picture
-genGrid world count = Translate (-screensize / 2) (-screensize / 2) $ Pictures $ horizontal gridsize count ++ vertical gridsize count
+-- | Generates the grid of size count for the given world, by calling 
+-- horizontal and vertical, and then translating the resultant grid by
+-- negative half of the screen width on each axis.
+genGrid :: World -> -- ^Takes current 'World' state
+           Int -> -- ^The size of the desired grid
+           Picture -- ^'Picture' of the generated 'World'
+genGrid world count = Translate (-screensize / 2) (-screensize / 2) $ 
+                         Pictures $ horizontal gridsize count ++ vertical gridsize count
     where gridsize = squareSize world
           screensize = fromIntegral $ width world
 
--- Generates count horizontal lines gridsize apart, starting from the origin.
-horizontal :: Float -> Int -> [Picture]
-horizontal gridsize count = [Line [(0 :: Float, gridsize * n), (gridsize * fromIntegral count, gridsize * n)] | n <- map fromIntegral [0..count] :: [Float]]
+-- | Generates count horizontal lines gridsize apart, starting from the origin.
+horizontal :: Float -> -- ^The origin
+              Int -> -- ^Number of horizontal lines
+              [Picture] -- ^Returns list of 'Picture' representing horizontal lines
+horizontal gridsize count = [Line [(0 :: Float, gridsize * n), 
+                              (gridsize * fromIntegral count, gridsize * n)] 
+                                | n <- map fromIntegral [0..count] :: [Float]]
 
 -- Generates count vertical lines gridsize apart, starting from the origin.
-vertical :: Float -> Int -> [Picture]
-vertical gridsize count = [Line [(gridsize * n, 0 :: Float), (gridsize * n, gridsize * fromIntegral count)] | n <- map fromIntegral [0..count] :: [Float]]
+vertical :: Float -> -- ^The origin
+            Int -> -- ^Number of vertical lines
+            [Picture] -- ^Returns list of 'Picture' representing vertical lines
+vertical gridsize count = [Line [(gridsize * n, 0 :: Float), 
+                            (gridsize * n, gridsize * fromIntegral count)] 
+                              | n <- map fromIntegral [0..count] :: [Float]]
 
+-- | Function that iterates over pieces in 'Board' and returns 'Picture' of
+-- the drawn pieces
 drawPieces :: World -> Picture -> Picture -> Picture
-drawPieces world black_piece white_piece = Pictures [drawPiece world piece black_piece white_piece | piece <- pieces $ board world]
+drawPieces world black_piece white_piece = Pictures [drawPiece world 
+                                                      piece black_piece white_piece 
+                                                       | piece <- pieces $ board world]
 
-drawPiece :: World -> (Position, Colour) -> Picture -> Picture -> Picture
-drawPiece world (position, col) black_p white_p = uncurry Translate (boardSpaceToScreenSpace world position) $ Scale scaled scaled (colour_piece col black_p white_p)
-								where scaled = (squareSize world) / 420
+-- | Funciton that takes a 'World' state and 
+drawPiece :: World -> -- ^Takes current 'World' state
+             (Position, Colour) -> -- ^Tuple containing co-ordinate and
+                                   -- respective 'Colour'
+             Picture -> -- ^
+             Picture -> 
+             Picture
+drawPiece world (position, col) black_p white_p 
+  = uncurry Translate (boardSpaceToScreenSpace world position) $ 
+       Scale scaled scaled (colour_piece col black_p white_p)
+            where scaled = (squareSize world) / 420
 
 colour_piece :: Colour -> Picture -> Picture -> Picture
 colour_piece col black_p white_p = if col == Black then black_p else white_p
@@ -58,11 +90,11 @@ colour_piece col black_p white_p = if col == Black then black_p else white_p
 highlight :: World -> Picture
 highlight w = case mousep of 
 		           Just p  -> if (game_in_progress (settings w)) == True 
-		           				then if contains p $ pieces $ board w 
-		           						then Blank 
-		           						else 
-		           							if (is_in_progress_game w) == True then drawHighlight w p else Blank
-		           				else Blank
+		                         then if contains p $ pieces $ board w 
+		                                 then Blank 
+		                                 else 
+		                                    if (is_in_progress_game w) == True then drawHighlight w p else Blank
+		                         else Blank
 		           Nothing -> Blank
     where mousep = mouse_board (board w)
 

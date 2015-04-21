@@ -5,6 +5,7 @@ import Debug.Trace
 import Data.List
 import Data.Ord
 
+{-
 -- | List comprehension to examine all positions on the board and
 -- build a list of unused positions. Availability is checked by way
 -- of the 'contains' method.
@@ -18,7 +19,7 @@ get_possible_moves board colour = [ (x, y)
     where 
       min = get_min board -- ^Minimum board bound, depending on if even/odd.
       max = get_max board -- ^Maximum board bound, depending on if even/odd.
-
+-}
 -- | Generate a list of moves for the AI to consider for its next one. 
 -- This can exclude some moves which the AI should not consider - for example 
 -- ones far away from any current piece - in order to reduce the number of moves 
@@ -125,7 +126,7 @@ evaluate :: Board -> -- ^Takes the current 'Board' state
             Colour -> -- ^Player colour that you want to evaluate the 'Board' for
             Int -- ^Returns a value based on how good the 'Board' is for the player
 evaluate b col =   (sum [(countNConnected b n col) * (weight n)
-                      | n <- [(target b), (target b) - 1 .. 1]]) `quot` 2  +
+                      | n <- [(target b), (target b) - 1 .. 1]]) `quot` 4  +
                          sum [(countNConnected b n (switch col)) * (-weight n)
                             | n <- [(target b), (target b) - 1 .. 1]]
   where weight n = 2 ^ n

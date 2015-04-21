@@ -59,7 +59,7 @@ data World = World { board :: Board, -- ^'Board' Representation
                      human :: Colour, -- ^'Colour' Of The Human Player
                      computer :: Colour, -- ^'Colour' Of The AI Player
                      settings :: Settings, -- ^Settings Loaded In
-             		     width :: Int } -- ^Width Of The 'Board'
+             		 width :: Int } -- ^Width Of The 'Board'
          deriving (Read, Show)
 
 data Settings = Settings { grid_size :: Int, -- ^'Board' Representation

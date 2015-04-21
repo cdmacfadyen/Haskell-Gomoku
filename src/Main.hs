@@ -12,7 +12,7 @@ import AdvancedAI
 
 -- | Initialize the main IO loop.
 main :: IO () -- ^ IO State.
--- | Starts up a graphics window and sets up handlers for 
+-- ^Starts up a graphics window and sets up handlers for 
 -- dealing with inputs and updating the world state.
 main = do args <- getArgs
           background <- loadBMP "images/background.bmp"
@@ -158,6 +158,7 @@ get_colour_from_command command
 				| command == "White" = White
 				| otherwise			 = error "Incorrect colour input, try again! [Black/White]"
 
+-- | Function that prints usage to the terminal
 print_usage :: String
 print_usage = "\n\nusage: gomoku world_type board_size target_size which_colour\
 				\\n\t\t world_type: string argument to indicate if new game, load game\
