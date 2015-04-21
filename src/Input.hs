@@ -68,13 +68,13 @@ handle_grid_size :: (Float,Float) -> -- ^Takes position of screen click
                     World -> -- ^Current 'World' state
                     World -- ^Returns new 'World' state
 handle_grid_size (x,y) w = if (pointInBox (x,y) ((-539),137) ((-501),(101)))
-                              then w{settings = (change_grid_size (settings w) 3)}
+                              then w{settings = (change_grid_size (settings w) 2)}
                               else
                                  if (pointInBox (x,y) ((-487),136) ((-449),(101)))
-                                    then w{settings = (change_grid_size (settings w) 6)}
+                                    then w{settings = (change_grid_size (settings w) 5)}
                                     else
                                        if (pointInBox (x,y) ((-439),138) ((-397),(99)))
-                                          then w{settings = (change_grid_size (settings w) 19)}
+                                          then w{settings = (change_grid_size (settings w) 18)}
                                           else w
 -- | Changes the original grid size in 'Settings' with a new grid size passed
 -- in as 'Int'

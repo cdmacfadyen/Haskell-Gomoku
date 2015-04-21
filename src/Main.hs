@@ -105,8 +105,8 @@ loadGame filename = do putStrLn $ "Loading game from file: " ++ show filename
                        contents <- readFile filename
                        return (read contents :: World)
 
--- | Default board: 6x6, target is 3 in a row, no initial pieces
-default_board = Board 6 3 Nothing Nothing [] Nothing
+-- | Default board: 6x6 (thus 5 squares), target is 3 in a row, no initial pieces
+default_board = Board 5 3 Nothing Nothing [] Nothing
 
 -- ^Default world: initial board, black is current player.
 default_world = World default_board Black (0,0) Black White (configure_settings(default_settings)) 600
@@ -145,7 +145,7 @@ initialise_world args = World (initialise_board (read(args !! 1)::Int) (read(arg
 -- | Function that checks if the board size is valid or not
 check_size :: Int -> -- ^The board size to check
               Int -- ^Returns the board size if valid or error if invalid
-check_size size = if 2 <= size && size <= 19 then size else error "Incorrect board size, try again [2-19]"
+check_size size = if 2 <= size && size <= 19 then (size - 1) else error "Incorrect board size, try again [2-19]"
 
 -- | Function that checks if the target size is valid or not
 check_target :: Int -> -- ^The target size to check
