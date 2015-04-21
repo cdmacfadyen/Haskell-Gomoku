@@ -57,6 +57,8 @@ main = do args <- getArgs
           med <- loadBMP "images/in_game_settings/med.bmp"
           med_h <- loadBMP "images/in_game_settings/med-h.bmp"
           tied <- loadBMP "images/tied.bmp"
+          five <- loadBMP "images/in_game_settings/five.bmp"
+          five_h <- loadBMP "images/in_game_settings/five-h.bmp"
           
           world <- if length args == 5
           			  then return $ initialise_world args
@@ -87,7 +89,7 @@ main = do args <- getArgs
                  					thinking ai_difficulty black_button done grid_size
                  					nineteen six target_size three white_button colour_button black_won white_won hint_button
                           hint_button_h done_h black_h white_h three_h six_h nineteen2 nineteen_h easy easy_h hard 
-                          hard_h med med_h tied)) -- Convert the world state to gloss state.
+                          hard_h med med_h tied five five_h)) -- Convert the world state to gloss state.
                  -- | Called if there is an input event. If it is the
            	      --human player's turn, should update the board.
                  handleInput -- handleInput is an impure function since it saves/loads files.
@@ -148,7 +150,12 @@ check_size size = if 2 <= size && size <= 19 then size else error "Incorrect boa
 -- | Function that checks if the target size is valid or not
 check_target :: Int -> -- ^The target size to check
                 Int -- ^Returns the target size if valid or error if invalid
-check_target target = if 3 <= target && target <= 6 then target else error "Incorrect target size, try again [3-6]"
+check_target target = if (target == 3) 
+						then target
+						else
+							if (target == 5) 
+								then target 
+								else error "Incorrect target size, try again [3 or 5]"
 
 -- | Function that gets 'Colour' from CLI entered by the user
 get_colour_from_command :: String -> -- ^Gets a string of the desired 'Colour'
@@ -164,7 +171,7 @@ print_usage = "\n\nusage: gomoku world_type board_size target_size which_colour\
 				\\n default settings or settings in game\
         \[new || <name_of_load file> || def || ingame]\
 				\\n\t\t board_size: allowed 3 <= size <= 19\
-				\\n\t\t target_size: allowed 3 <= target <= 16\
+				\\n\t\t target_size: allowed 3 or 5\
 				\\n\t\t which_colour: string arguments [Black || White]\
         \\n\t\t ai_diff: allowed 1 <= size <= 3\
 				\\n Please note that if you are using the default setting, do not pass\

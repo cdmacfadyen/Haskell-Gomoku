@@ -92,7 +92,7 @@ handle_target_size (x,y) w = if (pointInBox (x,y) ((-513),(-10)) ((-475),(-42)))
                                 then w{settings = (change_target_size (settings w) 3)}
                                 else
                                    if (pointInBox (x,y) ((-466),(-10)) ((-425),(-43)))
-                                      then w{settings = (change_target_size (settings w) 6)}
+                                      then w{settings = (change_target_size (settings w) 5)}
                                       else w
 
 -- | Changes the original target size in 'Settings' with a new target size
