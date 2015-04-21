@@ -6,6 +6,7 @@ import Board
 import Debug.Trace
 
 -- | Overall Draw Function.
+<<<<<<< HEAD:src/Draw.hs
 drawWorld :: World -> Picture -> Picture -> Picture -> Picture ->
 			 Picture -> Picture -> Picture -> Picture -> Picture ->
 			 Picture -> Picture -> Picture -> Picture -> Picture ->
@@ -33,6 +34,30 @@ drawWorld world background black_p white_p undo save undo_h save_h
                                     hard hard_h med med_h three_h six_h nineteen_h white_h black_h, 
                                     draw_winner world black_won white_won tied, 
                                     draw_hints_btn (mouse world) hint_button hint_h]
+=======
+drawWorld :: World -> Picture -> Picture -> Picture -> Picture 
+			-> Picture -> Picture -> Picture -> Picture -> Picture 
+			-> Picture -> Picture -> Picture -> Picture -> Picture 
+			-> Picture -> Picture -> Picture -> Picture -> Picture 
+			-> Picture -> Picture -> Picture -> Picture -> Picture
+			-> Picture -> Picture -> Picture -> Picture -> Picture 
+			-> Picture -> Picture -> Picture -> Picture -> Picture 
+			-> Picture -> Picture -> Picture -> Picture -> Picture
+			-> Picture -> Picture
+drawWorld world background black_p white_p undo save undo_h save_h restart restart_h thinking ai_difficulty black done grid_size nineteen six target_size three white colour_button black_won white_won hint_button hint_h done_h black_h white_h three_h six_h nineteen2 nineteen_h easy easy_h hard hard_h med med_h tied five five_h = 
+																			   Pictures[background, drawBoard world, 
+																			   drawPieces world black_p white_p, 
+																			   highlight world, draw_hint world,
+																			   draw_undo (mouse world) undo undo_h,
+																			   draw_save (mouse world) save save_h,
+																			   draw_restart (mouse world) restart restart_h,
+																			   draw_ai_think world thinking, draw_grid_txt world grid_size,
+																			   draw_target_txt world target_size, draw_ai_txt world ai_difficulty,
+																			   draw_your_colour world colour_button, check_done world (mouse world) done done_h,
+																			   is_draw_settings world three six nineteen2 white black black_won white_won easy easy_h 
+																			   hard hard_h med med_h three_h six_h nineteen_h white_h black_h five five_h, draw_winner world black_won white_won tied, 
+																			   draw_hints_btn (mouse world) hint_button hint_h]
+>>>>>>> 47a2d4d95c8a65eba298ab4877e3632e0e45b23f:Code/src/Draw.hs
 -- | Draws the board.
 drawBoard :: World -> -- ^Takes a current 'World' state
              Picture -- ^Returns a 'Picture'
@@ -128,10 +153,15 @@ draw_hints_btn (x,y) hints hints_h = if (pointInBox (x,y) ((382),(-122)) ((567),
 								then Translate 475 (-150) $ hints_h
 								else Translate 475 (-150) $ hints
 
-is_draw_settings :: World -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture -> Picture
-is_draw_settings world three six nineteen white black black_won white_won easy easy_h hard hard_h med med_h three_h six_h nineteen_h white_h black_h = if (game_in_progress (settings world)) /= True
+is_draw_settings :: World -> Picture -> Picture -> Picture -> Picture 
+					-> Picture -> Picture -> Picture -> Picture 
+					-> Picture -> Picture -> Picture -> Picture 
+					-> Picture -> Picture -> Picture -> Picture 
+					-> Picture -> Picture -> Picture -> Picture
+					-> Picture
+is_draw_settings world three six nineteen white black black_won white_won easy easy_h hard hard_h med med_h three_h six_h nineteen_h white_h black_h five five_h = if (game_in_progress (settings world)) /= True
 																			then Pictures [draw_size_three (mouse world) three three_h , draw_size_six (mouse world) six six_h, 
-																			   draw_size_nineteen (mouse world) nineteen nineteen_h, draw_target_three (mouse world) three three_h, draw_target_six (mouse world) six six_h,
+																			   draw_size_nineteen (mouse world) nineteen nineteen_h, draw_target_three (mouse world) three three_h, draw_target_five (mouse world) five five_h,
 																			   draw_ai_one (mouse world) easy easy_h, draw_ai_two (mouse world) med med_h, draw_ai_three (mouse world) hard hard_h,
 																			   draw_white_button (mouse world) white white_h, draw_black_button(mouse world) black black_h]
 																			else Blank
@@ -173,8 +203,8 @@ draw_target_three  (x,y) pict pict_h = if (pointInBox (x,y) ((-513),(-10)) ((-47
 								then Translate (-495) (-25) $ pict_h
 								else Translate (-495) (-25)$ pict
 
-draw_target_six :: (Float,Float) -> Picture -> Picture -> Picture
-draw_target_six (x,y) pict pict_h = if (pointInBox (x,y) ((-466),(-10)) ((-425),(-43)))
+draw_target_five :: (Float,Float) -> Picture -> Picture -> Picture
+draw_target_five (x,y) pict pict_h = if (pointInBox (x,y) ((-466),(-10)) ((-425),(-43)))
 								then Translate (-445) (-25) $ pict_h
 								else Translate (-445) (-25) $ pict
 

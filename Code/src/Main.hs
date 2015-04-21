@@ -57,8 +57,10 @@ main = do args <- getArgs
           med <- loadBMP "images/in_game_settings/med.bmp"
           med_h <- loadBMP "images/in_game_settings/med-h.bmp"
           tied <- loadBMP "images/tied.bmp"
+          five <- loadBMP "images/in_game_settings/five.bmp"
+          five_h <- loadBMP "images/in_game_settings/five-h.bmp"
           
-          world <- if length args == 4
+          world <- if length args == 5
           			  then return $ initialise_world args
           			  else 
           			  	if length args == 0
@@ -87,7 +89,7 @@ main = do args <- getArgs
                  					thinking ai_difficulty black_button done grid_size
                  					nineteen six target_size three white_button colour_button black_won white_won hint_button
                           hint_button_h done_h black_h white_h three_h six_h nineteen2 nineteen_h easy easy_h hard 
-                          hard_h med med_h tied)) -- Convert the world state to gloss state.
+                          hard_h med med_h tied five five_h)) -- Convert the world state to gloss state.
                  -- | Called if there is an input event. If it is the
            	      --human player's turn, should update the board.
                  handleInput -- handleInput is an impure function since it saves/loads files.
@@ -103,15 +105,15 @@ loadGame filename = do putStrLn $ "Loading game from file: " ++ show filename
                        contents <- readFile filename
                        return (read contents :: World)
 
--- | Default board: 6x6, target is 3 in a row, no initial pieces
-default_board = Board 6 3 Nothing Nothing [] Nothing
+-- | Default board: 6x6 (thus 5 squares), target is 3 in a row, no initial pieces
+default_board = Board 5 3 Nothing Nothing [] Nothing
 
 -- ^Default world: initial board, black is current player.
 default_world = World default_board Black (0,0) Black White (configure_settings(default_settings)) 600
 
 default_world_ingame_sets = World default_board Black (0,0) Black White default_settings_in_game 600
 
-default_settings = Settings 0 0 0 Nothing True True
+default_settings = Settings 0 0 2 Nothing True True
 
 default_settings_in_game = Settings 0 0 0 Nothing False False
 
@@ -136,19 +138,24 @@ initialise_world args = World (initialise_board (read(args !! 1)::Int) (read(arg
 								(0,0) -- Initial mouse position default
 								(colour) -- Human player colour
 								(switch colour) -- Computer colour
-								default_settings -- settings configured in command line.
+								default_settings{ai_difficulty = (read(args !! 4)::Int) } -- settings configured in command line.
 								600 -- Width, hard-coded must not be changed ever.
 			where colour = get_colour_from_command (args !! 3)
 
 -- | Function that checks if the board size is valid or not
 check_size :: Int -> -- ^The board size to check
               Int -- ^Returns the board size if valid or error if invalid
-check_size size = if 2 <= size && size <= 19 then size else error "Incorrect board size, try again [2-19]"
+check_size size = if 2 <= size && size <= 19 then (size - 1) else error "Incorrect board size, try again [2-19]"
 
 -- | Function that checks if the target size is valid or not
 check_target :: Int -> -- ^The target size to check
                 Int -- ^Returns the target size if valid or error if invalid
-check_target target = if 3 <= target && target <= 6 then target else error "Incorrect target size, try again [3-6]"
+check_target target = if (target == 3) 
+						then target
+						else
+							if (target == 5) 
+								then target 
+								else error "Incorrect target size, try again [3 or 5]"
 
 -- | Function that gets 'Colour' from CLI entered by the user
 get_colour_from_command :: String -> -- ^Gets a string of the desired 'Colour'
@@ -165,7 +172,8 @@ print_usage = "\n\nusage: gomoku world_type board_size target_size which_colour\
 				\\n default settings or settings in game\
         \[new || <name_of_load file> || def || ingame]\
 				\\n\t\t board_size: allowed 3 <= size <= 19\
-				\\n\t\t target_size: allowed 3 <= target <= 16\
+				\\n\t\t target_size: allowed 3 or 5\
 				\\n\t\t which_colour: string arguments [Black || White]\
+        \\n\t\t ai_diff: allowed 1 <= size <= 3\
 				\\n Please note that if you are using the default setting, do not pass\
 				\ any other parameters, other than the string def.\n\n"
