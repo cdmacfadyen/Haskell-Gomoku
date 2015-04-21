@@ -5,21 +5,6 @@ import Debug.Trace
 import Data.List
 import Data.Ord
 
-{-
--- | List comprehension to examine all positions on the board and
--- build a list of unused positions. Availability is checked by way
--- of the 'contains' method.
-get_possible_moves :: Board -> -- ^ Current 'Board'.
-                      Colour -> -- ^ Player to check for.
-                      [Position] -- ^ List of positions.
-get_possible_moves board colour = [ (x, y) 
-                                  | x <- [min..max], 
-                                    y <- [min..max], not $ contains (x, y) 
-                                            (pieces board)]
-    where 
-      min = get_min board -- ^Minimum board bound, depending on if even/odd.
-      max = get_max board -- ^Maximum board bound, depending on if even/odd.
--}
 -- | Generate a list of moves for the AI to consider for its next one. 
 -- This can exclude some moves which the AI should not consider - for example 
 -- ones far away from any current piece - in order to reduce the number of moves 
@@ -125,17 +110,26 @@ minimise board (pos:poss) current_turn depth value alpha beta maximising_colour
 evaluate :: Board -> -- ^Takes the current 'Board' state
             Colour -> -- ^Player colour that you want to evaluate the 'Board' for
             Int -- ^Returns a value based on how good the 'Board' is for the player
-evaluate b col =   if goal > 3
-                      then (sum [(countNConnected b n col) * (weight n)
-                                | n <- [goal, goal - 1 .. 1]]) `quot` 4  +
-                            sum [(countNConnected b n (switch col)) * (-weight n)
-                                | n <- [goal, goal - 1 .. 1]]
-                      else case checkWon b of
-                              Just c -> if c == col then 100 else -100
-                              Nothing -> 0
-  where weight n = 2 ^ n
-        goal = target b
+evaluate b col = if ((countNConnected b (target b) (switch col))) >= 1
+                    then -20000 -- Acting as -infty
+                    else
+                       if ((countNConnected b (target b) col) `quot` 2) >= 1
+                          then 20000 -- Acting as infty
+                          else (maxP - minP)
 
+    where weight n = 2 ^ n
+          goal = target b
+          maxP = (sum [((countNConnected b n col) `quot` 2) * (weight n)
+                    | n <- [goal, goal - 1 .. 1]])
+          minP = (sum [((countNConnected b n (switch col)) `quot` 2) * (weight n * 2)
+                    | n <- [goal, goal - 1 .. 1]])
+
+  {-where weight n = 2 ^ n
+        goal = target b
+        otherplayerwonpenalty = case checkWon b of 
+                                     Just c -> if c == col then 0 else trace "hallo" $ infty
+                                     Nothing -> 0
+-}
 -- | Makes an AI move, based on the best result from tree, and returns
 -- a maybe board if successful.
 move_ai :: World -> -- ^Takes the current 'World' state
@@ -144,7 +138,7 @@ move_ai :: World -> -- ^Takes the current 'World' state
            Maybe Board -- ^The new 'Board' state with the AI move, or Nothing
 move_ai world board colour = makeMove board colour (getbestmove board depth (turn world))
     where difficulty = ai_difficulty (settings world)
-          depth = 2 + difficulty
+          depth = 2 * difficulty
 
 -- | AI world, resulting from an AI move.
 get_ai_world :: World -> World -- ^ New updated 'World'.
